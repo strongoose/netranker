@@ -8,6 +8,7 @@ botocore = "*"
 
 [dev-packages]
 ipython = "*"
+awscli = "*"
 
 [requires]
 python_version = "3.7"
