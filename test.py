@@ -5,12 +5,12 @@ from netranker import Pairing
 class TestPairing(unittest.TestCase):
 
     def test_init(self):
-        pair = Pairing()
+        pairing = Pairing()
 
-        self.assertTrue(hasattr(pair, 'uuid'))
-        self.assertTrue(hasattr(pair, 'cards'))
+        self.assertTrue(hasattr(pairing, 'uuid'))
+        self.assertTrue(hasattr(pairing, 'cards'))
 
-        self.assertEqual(len(pair.cards), 2)
+        self.assertEqual(len(pairing.cards), 2)
 
     def test_uniqueness(self):
         pair1 = Pairing()
