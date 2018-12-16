@@ -9,6 +9,7 @@ botocore = "*"
 [dev-packages]
 ipython = "*"
 awscli = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"
