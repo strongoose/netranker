@@ -1,8 +1,8 @@
 import unittest
 
 from netranker.core import Pairing
-
 from netranker.ports import CardSampler
+from test.adapters import TestSampler
 
 class TestPairing(unittest.TestCase):
 
