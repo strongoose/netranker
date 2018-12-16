@@ -32,10 +32,12 @@ class TestPairing(unittest.TestCase):
         # self.assertNotEqual(pair1.cards[0], pair1.cards[1])
         # self.assertNotEqual(pair2.cards[0], pair2.cards[1])
 
-class CardSampler(unittest.TestCase):
+class TestCardSampler(unittest.TestCase):
 
-    def test_error_with_no_adapter():
+    def test_no_init(self):
         '''
-        The port should fail to initialise with no adapter
+        Card sampler is an abstract class and requires __init__ to be
+        implemented by child classes
         '''
-        self.assertRaises(CardSampler(), TypeError)
+        with self.assertRaises(TypeError):
+            CardSampler()
