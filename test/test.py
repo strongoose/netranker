@@ -6,31 +6,30 @@ from test.adapters import TestSampler
 
 class TestPairing(unittest.TestCase):
 
+    def setUp(self):
+        test_sample = ['54321', '12345']
+        self.test_sampler = TestSampler(test_sample)
+
     def test_init(self):
         '''
         Test that Pairings initialise correctly with a UUID and a pair of cards
         '''
-        pairing = Pairing()
+        pairing = Pairing(card_sampler=self.test_sampler)
 
         self.assertTrue(hasattr(pairing, 'uuid'))
         self.assertTrue(hasattr(pairing, 'cards'))
 
-        self.assertEqual(len(pairing.cards), 2)
+        self.assertEqual(pairing.cards, ['54321', '12345'])
 
     def test_uniqueness(self):
         '''
-        Test that the UUIDs on two different Pairings are unique, and that each
-        Pairing is of two unique cards.
+        Test that the UUIDs on two different Pairings are unique
         '''
-        pair1 = Pairing()
-        pair2 = Pairing()
+        pair1 = Pairing(card_sampler=self.test_sampler)
+        pair2 = Pairing(card_sampler=self.test_sampler)
 
         self.assertNotEqual(pair1.uuid, pair2.uuid)
         self.assertNotEqual(pair1.uuid, pair2.uuid)
-
-        # need to implement card fetch port
-        # self.assertNotEqual(pair1.cards[0], pair1.cards[1])
-        # self.assertNotEqual(pair2.cards[0], pair2.cards[1])
 
 class TestCardSampler(unittest.TestCase):
 
