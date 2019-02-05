@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 botocore = "*"
+pyyaml = "> 4.1"
 
 [dev-packages]
 ipython = "*"
