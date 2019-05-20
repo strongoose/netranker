@@ -4,13 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-botocore = "*"
-pyyaml = "> 4.1"
 
 [dev-packages]
 ipython = "*"
-awscli = "*"
 requests = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.7"
