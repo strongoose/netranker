@@ -5,10 +5,12 @@ name = "pypi"
 
 [packages]
 flask = "*"
+PyJWT = "*"
 
 [dev-packages]
 ipython = "*"
 requests = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.7"
