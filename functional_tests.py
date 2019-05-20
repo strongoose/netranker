@@ -7,6 +7,8 @@ from app import app
 class TestVoting(unittest.TestCase):
 
     def setUp(self):
+        self.signing_key = 'test signing key'
+        app.config['signing_key'] = self.signing_key
         self.client = app.test_client()
 
     def test_get_new_pairing(self):
@@ -20,3 +22,7 @@ class TestVoting(unittest.TestCase):
         self.assertEqual(len(pairing), 2)
 
         token = response.json.get('token', None)
+        try:
+            jwt.decode(token, self.signing_key, algorithms=['HS256'])
+        except jwt.DecodeError as exception:
+            self.fail('Could not decode pairing jwt: %s' % exception)
