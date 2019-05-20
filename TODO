@@ -1,0 +1,4 @@
+* Add README
+* Add ADRs
+ - Build a single-page app backed by RESTful APIs
+ - Use JWT to authorize pairing submission
