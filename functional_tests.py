@@ -59,3 +59,12 @@ class TestVoting(unittest.TestCase):
 
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
+
+    def test_submit_pairing_with_invalid_winner(self):
+        response = self.client.get('/pairing')
+
+        headers = {'authorization': response.json.get('token')}
+        result = {'winner': 'The Shadow: Pulling the Strings'}
+
+        response = self.client.post('/pairing', json=result, headers=headers)
+        self.assertEqual(response.status_code, 401)
