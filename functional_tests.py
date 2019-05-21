@@ -42,18 +42,20 @@ class TestVoting(unittest.TestCase):
 
     def test_submit_pairing_without_token(self):
         response = self.client.get('/pairing')
+        cards = response.json.get('cards', None)
 
-        result = {'winner': 'The Shadow: Pulling the Strings'}
+        result = {'winner': cards[0]}
 
         response = self.client.post('/pairing', json=result)
         self.assertEqual(response.status_code, 403)
 
     def test_submit_pairing_with_invalid_token(self):
         response = self.client.get('/pairing')
+        cards = response.json.get('cards', None)
         invalid_token = jwt.encode({}, 'invalid_secret', algorithm='HS256')
 
         headers = {'authorization': invalid_token}
-        result = {'winner': 'The Shadow: Pulling the Strings'}
+        result = {'winner': cards[0]}
 
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
