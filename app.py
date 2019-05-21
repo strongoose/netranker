@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/pairing", methods=['GET'])
 def pairing():
-    cards = ['Temujin Contract', 'Şifr']
+    cards = ['Temüjin Contract', 'Şifr']
 
     issued = datetime.utcnow()
     jwt_claim = {
