@@ -23,6 +23,10 @@ class TestVoting(unittest.TestCase):
 
         token = response.json.get('token', None)
         try:
-            jwt.decode(token, self.signing_key, algorithms=['HS256'])
+            claims = jwt.decode(token, self.signing_key, algorithms=['HS256'])
         except jwt.DecodeError as exception:
             self.fail('Could not decode pairing jwt: %s' % exception)
+
+        self.assertIn('iat', claims.keys())
+        self.assertIn('exp', claims.keys())
+        self.assertIn('cards', claims.keys())
