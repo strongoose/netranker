@@ -35,7 +35,7 @@ class Pairing(Resource):
             claims = jwt.decode(
                 auth_token, app.config['SIGNING_KEY'], algorithms=['HS256']
             )
-        except jwt.InvalidSignatureError:
+        except jwt.InvalidTokenError:
             return 'Unauthorized', 401
         winner = request.json.get('winner', None)
         if winner is None:
