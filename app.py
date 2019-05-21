@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
 
 import jwt
@@ -24,6 +24,9 @@ class Pairing(Resource):
         return pairing
 
     def post(self):
+        auth_token = request.headers.get('authorization', None)
+        if auth_token is None:
+            return 'Forbidden', 403
         return None, 204
 
 api.add_resource(Pairing, '/pairing')
