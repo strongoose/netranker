@@ -96,3 +96,13 @@ class TestVoting(unittest.TestCase):
 
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
+
+    def test_submit_pairing_with_invalid_auth_type(self):
+        response = self.client.get('/pairing')
+        cards = response.json.get('cards')
+
+        headers = {'authorization': 'basic ' + response.json.get('token')}
+        result = {'winner': cards[0]}
+
+        response = self.client.post('/pairing', json=result, headers=headers)
+        self.assertEqual(response.status_code, 401)
