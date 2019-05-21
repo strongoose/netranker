@@ -1,0 +1,80 @@
+openapi: "3.0.0"
+info:
+  title: Netranker API
+  description: "This API allows users to rank paired netrunner cards and retreive rankings derived from aggregated votes."
+  version: 0.0.1
+  license:
+    name: TBC
+servers:
+  - url: https://netranker.glyx.co.uk/
+paths:
+  /pairing:
+    get:
+      summary: Get a pairing
+      operationId: getPairing
+      tags:
+        - pairings
+      responses:
+        '200':
+          description: A pairing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pairing"
+    post:
+      summary: Submit the result for a pairing
+      operationId: postPairing
+      tags:
+        - pairings
+      requestBody:
+        description: A pairing's result
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Result"
+      security:
+        - bearer: []
+      responses:
+        '201':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+components:
+  schemas:
+    Pairing:
+      required:
+        - cards
+        - token
+      properties:
+        cards:
+          description: The cards in this pairing
+          type: array
+          items:
+            $ref: "#/components/schemas/Card"
+          example:
+            cards:
+             - Temujin Contract
+             - Şifr
+        token:
+          description: A JWT with claims for issued at, expiry and cards in the pairing
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYXJkcyI6WyJUZW3DvGppbiBDb250cmFjdCIsIsWeaWZyIl0sImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5NjIyfQ.smRvV6aE7s6igKYvrKVSMQriUrdlORPuWmODb2XZ9Wo
+    Card:
+      type: string
+      description: A card name
+      example: Project Vitruvius
+    Result:
+      required:
+        - winner
+      properties:
+        winner:
+          $ref: "#/components/schemas/Card"
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
