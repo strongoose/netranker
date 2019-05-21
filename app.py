@@ -27,6 +27,11 @@ class Pairing(Resource):
         auth_token = request.headers.get('authorization', None)
         if auth_token is None:
             return 'Forbidden', 403
+        else:
+            try:
+                jwt.decode(auth_token, app.config['signing_key'], algorithms=['HS256'])
+            except jwt.InvalidSignatureError as exception:
+                return 'Unauthorized', 401
         return None, 204
 
 api.add_resource(Pairing, '/pairing')
