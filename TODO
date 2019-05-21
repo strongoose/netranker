@@ -3,3 +3,7 @@
  - Build a single-page app backed by RESTful APIs
  - Use JWT to authorize pairing submission
  - JSON ascii encoding false
+* Better 401s:
+ - token expired
+ - invalid auth type
+ - etc.
