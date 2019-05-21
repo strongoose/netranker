@@ -31,6 +31,9 @@ class Pairing(Resource):
             jwt.decode(auth_token, app.config['signing_key'], algorithms=['HS256'])
         except jwt.InvalidSignatureError:
             return 'Unauthorized', 401
+        winner = request.json.get('winner', None)
+        if winner is None:
+            return 'Bad Request', 400
         return None, 204
 
 api.add_resource(Pairing, '/pairing')
