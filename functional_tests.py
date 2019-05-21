@@ -33,14 +33,9 @@ class TestVoting(unittest.TestCase):
 
     def test_submit_pairing(self):
         response = self.client.get('/pairing')
-        cards = response.json.get('cards')
-        token = response.json.get('token')
 
-        result = {
-            'winner': cards[0],
-            'token': token
-        }
+        headers = {'authorization': response.json.get('token')}
+        result = {'winner': response.json.get('cards')[0]}
 
-        response = self.client.post('/pairing', json=result)
-
-        self.assertEqual(response.status_code, 201)
+        response = self.client.post('/pairing', json=result, headers=headers)
+        self.assertEqual(response.status_code, 204)
