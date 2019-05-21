@@ -28,9 +28,10 @@ class Pairing(Resource):
         return pairing, 200
 
     def post(self):
-        auth_token = request.headers.get('authorization', None)
-        if auth_token is None:
+        auth_header = request.headers.get('authorization', None)
+        if auth_header is None:
             return 'Forbidden', 403
+        auth_token = auth_header.split(' ')[1]
         try:
             claims = jwt.decode(
                 auth_token, app.config['SIGNING_KEY'], algorithms=['HS256']

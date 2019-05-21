@@ -34,7 +34,7 @@ class TestVoting(unittest.TestCase):
     def test_submit_pairing(self):
         response = self.client.get('/pairing')
 
-        headers = {'authorization': response.json.get('token')}
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {'winner': response.json.get('cards')[0]}
 
         response = self.client.post('/pairing', json=result, headers=headers)
@@ -43,7 +43,7 @@ class TestVoting(unittest.TestCase):
     def test_submit_pairing_without_winner(self):
         response = self.client.get('/pairing')
 
-        headers = {'authorization': response.json.get('token')}
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {}
 
         response = self.client.post('/pairing', json=result, headers=headers)
@@ -61,9 +61,11 @@ class TestVoting(unittest.TestCase):
     def test_submit_pairing_with_invalid_token(self):
         response = self.client.get('/pairing')
         cards = response.json.get('cards', None)
-        invalid_token = jwt.encode({}, 'invalid_secret', algorithm='HS256')
+        invalid_token = jwt.encode(
+            {}, 'invalid_secret', algorithm='HS256'
+        ).decode('utf-8')
 
-        headers = {'authorization': invalid_token}
+        headers = {'authorization': 'bearer ' + invalid_token}
         result = {'winner': cards[0]}
 
         response = self.client.post('/pairing', json=result, headers=headers)
@@ -72,7 +74,7 @@ class TestVoting(unittest.TestCase):
     def test_submit_pairing_with_invalid_winner(self):
         response = self.client.get('/pairing')
 
-        headers = {'authorization': response.json.get('token')}
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {'winner': 'The Shadow: Pulling the Strings'}
 
         response = self.client.post('/pairing', json=result, headers=headers)
@@ -87,9 +89,9 @@ class TestVoting(unittest.TestCase):
             },
             self.signing_key,
             algorithm='HS256'
-        )
+        ).decode('utf-8')
 
-        headers = {'authorization': expired_jwt}
+        headers = {'authorization': 'bearer ' + expired_jwt}
         result = {'winner': cards[0]}
 
         response = self.client.post('/pairing', json=result, headers=headers)
