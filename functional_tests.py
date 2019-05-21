@@ -18,8 +18,8 @@ class TestVoting(unittest.TestCase):
 
         self.assertEqual(response.headers['content-type'], 'application/json')
 
-        pairing = response.json.get('pairing', None)
-        self.assertEqual(len(pairing), 2)
+        cards = response.json.get('cards', None)
+        self.assertEqual(len(cards), 2)
 
         token = response.json.get('token', None)
         try:
