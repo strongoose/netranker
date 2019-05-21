@@ -23,4 +23,7 @@ class Pairing(Resource):
 
         return pairing
 
+    def post(self):
+        return None, 204
+
 api.add_resource(Pairing, '/pairing')
