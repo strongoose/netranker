@@ -28,7 +28,6 @@ class TestVoting(unittest.TestCase):
         except jwt.DecodeError as exception:
             self.fail('Could not decode pairing jwt: %s' % exception)
 
-        self.assertIn('iat', claims.keys())
         self.assertIn('exp', claims.keys())
         self.assertIn('cards', claims.keys())
 
@@ -83,7 +82,6 @@ class TestVoting(unittest.TestCase):
         cards = ['Oversight AI', 'Melange Mining Corp.']
         expired_jwt = jwt.encode(
             {
-                'iat': datetime.utcnow() - timedelta(days=60),
                 'exp': datetime.utcnow() - timedelta(days=30),
                 'cards': cards
             },

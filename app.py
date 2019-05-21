@@ -15,10 +15,10 @@ api = Api(app)
 class Pairing(Resource):
     def get(self):
         cards = ['Temüjin Contract', 'Şifr']
-        issued = datetime.utcnow()
-        jwt_claim = {'cards': cards,
-                     'iat': issued,
-                     'exp': issued + timedelta(hours=12)}
+        jwt_claim = {
+            'cards': cards,
+            'exp': datetime.utcnow() + timedelta(hours=12)
+        }
         token = jwt.encode(jwt_claim, app.config['SIGNING_KEY'], algorithm='HS256')
         pairing = {
             'cards': cards,
