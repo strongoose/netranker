@@ -8,7 +8,7 @@ class TestVoting(unittest.TestCase):
 
     def setUp(self):
         self.signing_key = 'test signing key'
-        app.config['signing_key'] = self.signing_key
+        app.config['SIGNING_KEY'] = self.signing_key
         self.client = app.test_client()
 
     def test_get_new_pairing(self):

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from secrets import token_hex
 
 from flask import Flask, request
 from flask_restful import Api, Resource
@@ -6,6 +7,7 @@ from flask_restful import Api, Resource
 import jwt
 
 app = Flask(__name__)
+app.config['SIGNING_KEY'] = token_hex(256)
 api = Api(app)
 
 class Pairing(Resource):
@@ -15,7 +17,7 @@ class Pairing(Resource):
         jwt_claim = {'cards': cards,
                      'iat': issued,
                      'exp': issued + timedelta(hours=12)}
-        token = jwt.encode(jwt_claim, app.config['signing_key'], algorithm='HS256')
+        token = jwt.encode(jwt_claim, app.config['SIGNING_KEY'], algorithm='HS256')
         pairing = {
             'cards': cards,
             'token': token.decode('utf-8')
@@ -29,7 +31,7 @@ class Pairing(Resource):
             return 'Forbidden', 403
         try:
             claims = jwt.decode(
-                auth_token, app.config['signing_key'], algorithms=['HS256']
+                auth_token, app.config['SIGNING_KEY'], algorithms=['HS256']
             )
         except jwt.InvalidSignatureError:
             return 'Unauthorized', 401
