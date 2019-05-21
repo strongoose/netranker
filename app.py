@@ -17,7 +17,7 @@ class Pairing(Resource):
         cards = ['Temüjin Contract', 'Şifr']
         jwt_claim = {
             'cards': cards,
-            'exp': datetime.utcnow() + timedelta(hours=12)
+            'exp': datetime.utcnow() + timedelta(hours=1)
         }
         token = jwt.encode(jwt_claim, app.config['SIGNING_KEY'], algorithm='HS256')
         pairing = {
