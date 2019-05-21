@@ -25,7 +25,7 @@ class Pairing(Resource):
             'token': token.decode('utf-8')
         }
 
-        return pairing
+        return pairing, 200
 
     def post(self):
         auth_token = request.headers.get('authorization', None)
