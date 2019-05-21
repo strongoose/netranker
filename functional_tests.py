@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timedelta
 
 import jwt
 
@@ -74,6 +75,24 @@ class TestVoting(unittest.TestCase):
 
         headers = {'authorization': response.json.get('token')}
         result = {'winner': 'The Shadow: Pulling the Strings'}
+
+        response = self.client.post('/pairing', json=result, headers=headers)
+        self.assertEqual(response.status_code, 401)
+
+    def test_submit_pairing_with_expired_token(self):
+        cards = ['Oversight AI', 'Melange Mining Corp.']
+        expired_jwt = jwt.encode(
+            {
+                'iat': datetime.utcnow() - timedelta(days=60),
+                'exp': datetime.utcnow() - timedelta(days=30),
+                'cards': cards
+            },
+            self.signing_key,
+            algorithm='HS256'
+        )
+
+        headers = {'authorization': expired_jwt}
+        result = {'winner': cards[0]}
 
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
