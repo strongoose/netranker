@@ -8,6 +8,8 @@ import jwt
 
 app = Flask(__name__)
 app.config['SIGNING_KEY'] = token_hex(256)
+# Turns off ASCII escaping for JSON data
+app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
 api = Api(app)
 
 class Pairing(Resource):
