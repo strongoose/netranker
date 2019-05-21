@@ -28,12 +28,16 @@ class Pairing(Resource):
         if auth_token is None:
             return 'Forbidden', 403
         try:
-            jwt.decode(auth_token, app.config['signing_key'], algorithms=['HS256'])
+            claims = jwt.decode(
+                auth_token, app.config['signing_key'], algorithms=['HS256']
+            )
         except jwt.InvalidSignatureError:
             return 'Unauthorized', 401
         winner = request.json.get('winner', None)
         if winner is None:
             return 'Bad Request', 400
+        if winner not in claims['cards']:
+            return 'Unauthorized', 401
         return None, 204
 
 api.add_resource(Pairing, '/pairing')
