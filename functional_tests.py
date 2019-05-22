@@ -110,22 +110,31 @@ class TestVoting(unittest.TestCase):
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
-class TestFetchingCardData(unittest.TestCase):
+class TestCardData(unittest.TestCase):
 
     def setUp(self):
         self.client = MongoClient()
+        self.database_name = 'netranker-test-%s' % uuid4()
+        self.database = self.client[self.database_name]
 
-        self.test_db = 'netranker-test-%s' % uuid4()
-        self.db = self.client[self.test_db]
+        utils.load_cards(self.database.cards)
 
     def test_load_cards(self):
-        utils.load_cards(self.db.cards)
+        self.assertTrue(self.database.cards.find_one({"name": "Corroder"}))
+        self.assertTrue(self.database.cards.find_one({"name": "Doppelgänger"}))
+        self.assertTrue(self.database.cards.find_one({"name": "Fast Track"}))
+        self.assertTrue(self.database.cards.find_one({"name": "Accelerated Diagnostics"}))
+        self.assertTrue(self.database.cards.find_one({"name": "Parasite"}))
 
-        self.assertTrue(self.db.cards.find_one({"name": "Corroder"}))
-        self.assertTrue(self.db.cards.find_one({"name": "Doppelgänger"}))
-        self.assertTrue(self.db.cards.find_one({"name": "Fast Track"}))
-        self.assertTrue(self.db.cards.find_one({"name": "Accelerated Diagnostics"}))
+    def test_set_data(self):
+        parasite = self.database.cards.find_one({"name": "Parasite"})
+        self.assertIn('core', parasite['packs'])
+
+        sea_source = self.database.cards.find_one({"name": "SEA Source"})
+        self.assertIn('core', sea_source['packs'])
+        self.assertIn('core2', sea_source['packs'])
+        self.assertIn('sc19', sea_source['packs'])
 
     def tearDown(self):
-        self.client.drop_database(self.test_db)
+        self.client.drop_database(self.database_name)
         self.client.close()
