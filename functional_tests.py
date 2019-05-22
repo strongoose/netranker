@@ -1,9 +1,12 @@
 import unittest
 from datetime import datetime, timedelta
+from uuid import uuid4
 
 import jwt
+from pymongo import MongoClient
 
 from netranker.app import app
+import utils
 
 class TestVoting(unittest.TestCase):
 
@@ -106,3 +109,14 @@ class TestVoting(unittest.TestCase):
 
         response = self.client.post('/pairing', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
+
+class TestFetchingCardData(unittest.TestCase):
+
+    def setUp(self):
+        test_db = 'netranker-test-%s' % uuid4()
+        self.db = MongoClient()[test_db]
+
+    def test_load_cards(self):
+        utils.load_cards(self.db.cards)
+
+        self.assertTrue(self.db.cards.find_one({"name": "Corroder"}))
