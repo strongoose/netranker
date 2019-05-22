@@ -122,6 +122,9 @@ class TestFetchingCardData(unittest.TestCase):
         utils.load_cards(self.db.cards)
 
         self.assertTrue(self.db.cards.find_one({"name": "Corroder"}))
+        self.assertTrue(self.db.cards.find_one({"name": "Doppelgänger"}))
+        self.assertTrue(self.db.cards.find_one({"name": "Fast Track"}))
+        self.assertTrue(self.db.cards.find_one({"name": "Accelerated Diagnostics"}))
 
     def tearDown(self):
         self.client.drop_database(self.test_db)
