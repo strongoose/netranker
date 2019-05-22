@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from app import app
+from netranker.app import app
 
 class TestVoting(unittest.TestCase):
 
