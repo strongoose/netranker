@@ -113,10 +113,16 @@ class TestVoting(unittest.TestCase):
 class TestFetchingCardData(unittest.TestCase):
 
     def setUp(self):
-        test_db = 'netranker-test-%s' % uuid4()
-        self.db = MongoClient()[test_db]
+        self.client = MongoClient()
+
+        self.test_db = 'netranker-test-%s' % uuid4()
+        self.db = self.client[self.test_db]
 
     def test_load_cards(self):
         utils.load_cards(self.db.cards)
 
         self.assertTrue(self.db.cards.find_one({"name": "Corroder"}))
+
+    def tearDown(self):
+        self.client.drop_database(self.test_db)
+        self.client.close()
