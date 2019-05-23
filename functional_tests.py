@@ -142,3 +142,15 @@ class TestCardData(unittest.TestCase):
         self.assertIn('core', sea_source['packs'])
         self.assertIn('core2', sea_source['packs'])
         self.assertIn('sc19', sea_source['packs'])
+
+class TestProduceRanking(unittest.TestCase):
+
+    def setUp(self):
+        self.signing_key = 'test signing key'
+        app.config['SIGNING_KEY'] = self.signing_key
+        self.client = app.test_client()
+        self.database = MongoClient()[TEST_DATABASE]
+
+    def test_empty_ranking(self):
+        result = self.client.get('/ranking')
+        self.assertEqual(result.status_code, 200)
