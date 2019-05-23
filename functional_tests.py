@@ -8,6 +8,15 @@ from pymongo import MongoClient
 from netranker.app import app
 import utils
 
+TEST_DATABASE = 'netranker-test-%s' % uuid4()
+
+def setUpModule():
+    mongo_client = MongoClient()
+    database = mongo_client[TEST_DATABASE]
+
+    utils.load_cards(database.cards)
+
+
 class TestVoting(unittest.TestCase):
 
     def setUp(self):
@@ -113,11 +122,10 @@ class TestVoting(unittest.TestCase):
 class TestCardData(unittest.TestCase):
 
     def setUp(self):
-        self.client = MongoClient()
-        self.database_name = 'netranker-test-%s' % uuid4()
-        self.database = self.client[self.database_name]
-
-        utils.load_cards(self.database.cards)
+        self.signing_key = 'test signing key'
+        app.config['SIGNING_KEY'] = self.signing_key
+        self.client = app.test_client()
+        self.database = MongoClient()[TEST_DATABASE]
 
     def test_load_cards(self):
         self.assertTrue(self.database.cards.find_one({"name": "Corroder"}))
@@ -134,7 +142,3 @@ class TestCardData(unittest.TestCase):
         self.assertIn('core', sea_source['packs'])
         self.assertIn('core2', sea_source['packs'])
         self.assertIn('sc19', sea_source['packs'])
-
-    def tearDown(self):
-        self.client.drop_database(self.database_name)
-        self.client.close()
