@@ -13,6 +13,7 @@ app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
 api = Api(app)
 
 class Pairing(Resource):
+
     def get(self):
         cards = ['Temüjin Contract', 'Şifr']
         jwt_claim = {
@@ -51,4 +52,10 @@ class Pairing(Resource):
 
         return None, 204
 
+class Ranking(Resource):
+
+    def get(self):
+        return {}, 200
+
 api.add_resource(Pairing, '/pairing')
+api.add_resource(Ranking, '/ranking')
