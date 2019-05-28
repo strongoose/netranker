@@ -36,3 +36,11 @@ class TestSamplers(unittest.TestCase):
             self.assertTrue(len(sample) == i)
             for card in sample:
                 self.assertTrue(type(card), str)
+
+class TestPairing(unittest.TestCase):
+
+    def test_pairing_creation(self):
+        pairing = Pairing(sampler=SimpleRandom, database=DATABASE)
+
+        self.assertEqual(type(pairing.cards), list)
+        self.assertEqual(pairing.sampling_method, 'simple random')
