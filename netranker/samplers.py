@@ -1,4 +1,9 @@
+import random
+
 class SimpleRandom():
 
     def __init__(self, database):
-        pass
+        self.database = database
+
+    def sample(self, size):
+        return random.sample(self.database.cards.find(), size)
