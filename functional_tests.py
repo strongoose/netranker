@@ -49,7 +49,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {'winner': response.json.get('cards')[0]}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 204)
 
     def test_submit_pairing_without_winner(self):
@@ -58,7 +58,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 400)
 
     def test_submit_pairing_without_token(self):
@@ -67,7 +67,7 @@ class TestVoting(unittest.TestCase):
 
         result = {'winner': cards[0]}
 
-        response = self.client.post('/pairing', json=result)
+        response = self.client.post('/result', json=result)
         self.assertEqual(response.status_code, 403)
 
     def test_submit_pairing_with_invalid_token(self):
@@ -80,7 +80,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'bearer ' + invalid_token}
         result = {'winner': cards[0]}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
     def test_submit_pairing_with_invalid_winner(self):
@@ -89,7 +89,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'bearer ' + response.json.get('token')}
         result = {'winner': 'The Shadow: Pulling the Strings'}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
     def test_submit_pairing_with_expired_token(self):
@@ -106,7 +106,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'bearer ' + expired_jwt}
         result = {'winner': cards[0]}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
     def test_submit_pairing_with_invalid_auth_type(self):
@@ -116,7 +116,7 @@ class TestVoting(unittest.TestCase):
         headers = {'authorization': 'basic ' + response.json.get('token')}
         result = {'winner': cards[0]}
 
-        response = self.client.post('/pairing', json=result, headers=headers)
+        response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
 class TestCardData(unittest.TestCase):

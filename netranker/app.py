@@ -28,6 +28,7 @@ class Pairing(Resource):
 
         return pairing, 200
 
+class Result(Resource):
     def post(self):
         auth_header = request.headers.get('authorization', None)
         if auth_header is None:
@@ -58,4 +59,5 @@ class Ranking(Resource):
         return {}, 200
 
 api.add_resource(Pairing, '/pairing')
+api.add_resource(Result, '/result')
 api.add_resource(Ranking, '/ranking')
