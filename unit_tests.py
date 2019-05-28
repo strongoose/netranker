@@ -1,11 +1,14 @@
 import unittest
 
+import jwt
+
 from netranker.core import Pairing
 from netranker.storage import InMemoryDatabase
 from netranker.samplers import SimpleRandom
 
 DATABASE = InMemoryDatabase()
 SAMPLER = SimpleRandom(database=DATABASE)
+HMAC_KEY = 'test signing key'
 
 def setUpModule():
     DATABASE.cards.insert_many([
@@ -40,7 +43,12 @@ class TestSamplers(unittest.TestCase):
 class TestPairing(unittest.TestCase):
 
     def test_pairing_creation(self):
-        pairing = Pairing(sampler=SAMPLER)
+        pairing = Pairing(SAMPLER)
 
         self.assertEqual(type(pairing.cards), list)
         self.assertEqual(pairing.sampling_method, 'simple random')
+
+        try:
+            jwt.decode(pairing.jwt(HMAC_KEY), HMAC_KEY, algorithms=['HS256'])
+        except jwt.DecodeError:
+            self.fail("Could not decode Pairing JWT")
