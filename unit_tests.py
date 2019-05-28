@@ -24,7 +24,7 @@ def setUpModule():
 class TestSamplers(unittest.TestCase):
 
     def test_simple_random_sampler(self):
-        sampler = SimpleRandom(database=DATABASE)
+        sampler = SimpleRandom(DATABASE)
 
         samples = [
             sampler.sample(i)
@@ -32,15 +32,15 @@ class TestSamplers(unittest.TestCase):
         ]
 
         for i, sample in enumerate(samples):
-            self.assertTrue(type(sample) == list)
-            self.assertTrue(len(sample) == i)
+            self.assertEqual(type(sample), list)
+            self.assertEqual(len(sample), i)
             for card in sample:
                 self.assertTrue(type(card), str)
 
 class TestPairing(unittest.TestCase):
 
     def test_pairing_creation(self):
-        pairing = Pairing(sampler=SimpleRandom, database=DATABASE)
+        pairing = Pairing(sampler=SAMPLER)
 
         self.assertEqual(type(pairing.cards), list)
         self.assertEqual(pairing.sampling_method, 'simple random')
