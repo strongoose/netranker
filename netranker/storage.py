@@ -24,6 +24,6 @@ class MongoDbCardStorage():
 
     def sample(self, k):
         return list(self._collection.aggregate([
-                {'$sample': {'size': k}},
-                {'$project': {'_id': 0}}
-            ]))
+            {'$sample': {'size': k}},
+            {'$project': {'_id': 0}}
+        ]))

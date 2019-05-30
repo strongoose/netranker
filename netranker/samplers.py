@@ -1,5 +1,3 @@
-import random
-
 class SimpleRandom():
 
     def __str__(self):

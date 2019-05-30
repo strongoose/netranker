@@ -21,7 +21,7 @@ def load_cards_from_disk(collection):
     load_cards(collection, card_data)
 
 def load_cards(collection, card_data):
-    cards_data = sorted(card_data, key=get_title)
+    card_data = sorted(card_data, key=get_title)
     collection.insert_many([
         {
             'name': name,

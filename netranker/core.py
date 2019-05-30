@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from netranker.samplers import SimpleRandom
-
 class Pairing():
 
     def __init__(self, sampler):
