@@ -6,29 +6,25 @@ from flask_restful import Api, Resource
 
 import jwt
 
+from netranker.core import Pairing
+
 app = Flask(__name__)
-app.config['SIGNING_KEY'] = token_hex(256)
-# Turns off ASCII escaping for JSON data
-app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
+app.config.from_object('netranker.settings')
+app.config.from_envvar('NETRANKER_CONFIG', silent=True)
 api = Api(app)
 
-class Pairing(Resource):
+class PairingApi(Resource):
 
     def get(self):
-        cards = ['Temüjin Contract', 'Şifr']
-        jwt_claim = {
-            'cards': cards,
-            'exp': datetime.utcnow() + timedelta(hours=1)
+        pairing = Pairing(app.config['SAMPLER'])
+        pairing.jwt(app.config['HMAC_KEY'])
+        response = {
+            'cards': pairing.cards,
+            'token': pairing.jwt(app.config['HMAC_KEY'])
         }
-        token = jwt.encode(jwt_claim, app.config['SIGNING_KEY'], algorithm='HS256')
-        pairing = {
-            'cards': cards,
-            'token': token.decode('utf-8')
-        }
+        return response, 200
 
-        return pairing, 200
-
-class Result(Resource):
+class ResultApi(Resource):
     def post(self):
         auth_header = request.headers.get('authorization', None)
         if auth_header is None:
@@ -40,7 +36,7 @@ class Result(Resource):
 
         try:
             claims = jwt.decode(
-                token, app.config['SIGNING_KEY'], algorithms=['HS256']
+                token, app.config['HMAC_KEY'], algorithms=['HS256']
             )
         except jwt.InvalidTokenError:
             return 'Unauthorized', 401
@@ -53,11 +49,11 @@ class Result(Resource):
 
         return None, 204
 
-class Ranking(Resource):
+class RankingApi(Resource):
 
     def get(self):
         return {}, 200
 
-api.add_resource(Pairing, '/pairing')
-api.add_resource(Result, '/result')
-api.add_resource(Ranking, '/ranking')
+api.add_resource(PairingApi, '/pairing')
+api.add_resource(ResultApi, '/result')
+api.add_resource(RankingApi, '/ranking')

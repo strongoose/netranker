@@ -6,22 +6,22 @@ import jwt
 from pymongo import MongoClient
 
 from netranker.app import app
-import utils
+import netranker.utils as utils
+from netranker.samplers import SimpleRandom
+from netranker.storage import MongoDbCardStorage
 
-TEST_DATABASE = 'netranker-test-%s' % uuid4()
+CARD_STORAGE = MongoDbCardStorage('netranker-test-%s' % uuid4())
 
 def setUpModule():
-    mongo_client = MongoClient()
-    database = mongo_client[TEST_DATABASE]
+    app.config['CARD_STORAGE'] = CARD_STORAGE
+    utils.load_cards_from_disk(app.config['CARD_STORAGE']._collection)
 
-    utils.load_cards(database.cards)
-
+    app.config['HMAC_KEY'] = 'test hmac key'
+    app.config['SAMPLER'] = SimpleRandom(app.config['CARD_STORAGE'])
 
 class TestVoting(unittest.TestCase):
 
     def setUp(self):
-        self.signing_key = 'test signing key'
-        app.config['SIGNING_KEY'] = self.signing_key
         self.client = app.test_client()
 
     def test_get_new_pairing(self):
@@ -36,7 +36,7 @@ class TestVoting(unittest.TestCase):
 
         token = response.json.get('token', None)
         try:
-            claims = jwt.decode(token, self.signing_key, algorithms=['HS256'])
+            claims = jwt.decode(token, app.config['HMAC_KEY'], algorithms=['HS256'])
         except jwt.DecodeError as exception:
             self.fail('Could not decode pairing jwt: %s' % exception)
 
@@ -99,7 +99,7 @@ class TestVoting(unittest.TestCase):
                 'exp': datetime.utcnow() - timedelta(days=30),
                 'cards': cards
             },
-            self.signing_key,
+            app.config['SIGNING_KEY'],
             algorithm='HS256'
         ).decode('utf-8')
 
@@ -119,37 +119,12 @@ class TestVoting(unittest.TestCase):
         response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
-class TestCardData(unittest.TestCase):
-
-    def setUp(self):
-        self.signing_key = 'test signing key'
-        app.config['SIGNING_KEY'] = self.signing_key
-        self.client = app.test_client()
-        self.database = MongoClient()[TEST_DATABASE]
-
-    def test_load_cards(self):
-        self.assertTrue(self.database.cards.find_one({"name": "Corroder"}))
-        self.assertTrue(self.database.cards.find_one({"name": "Doppelgänger"}))
-        self.assertTrue(self.database.cards.find_one({"name": "Fast Track"}))
-        self.assertTrue(self.database.cards.find_one({"name": "Accelerated Diagnostics"}))
-        self.assertTrue(self.database.cards.find_one({"name": "Parasite"}))
-
-    def test_set_data(self):
-        parasite = self.database.cards.find_one({"name": "Parasite"})
-        self.assertIn('core', parasite['packs'])
-
-        sea_source = self.database.cards.find_one({"name": "SEA Source"})
-        self.assertIn('core', sea_source['packs'])
-        self.assertIn('core2', sea_source['packs'])
-        self.assertIn('sc19', sea_source['packs'])
-
 class TestProduceRanking(unittest.TestCase):
 
     def setUp(self):
         self.signing_key = 'test signing key'
         app.config['SIGNING_KEY'] = self.signing_key
         self.client = app.test_client()
-        self.database = MongoClient()[TEST_DATABASE]
 
     def test_empty_ranking(self):
         result = self.client.get('/ranking')

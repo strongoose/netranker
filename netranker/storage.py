@@ -1,19 +1,29 @@
-class InMemoryDatabase():
+from abc import ABC, abstractmethod
+from random import sample
+
+from pymongo import MongoClient
+
+class BaseCardStorage(ABC):
+
+    @abstractmethod
+    def sample(self):
+        pass
+
+class InMemoryCardStorage():
 
     def __init__(self):
-        self.cards = InMemoryCollection()
+        self._cards = []
 
-class InMemoryCollection():
+    def sample(self, k):
+        return sample(self._cards, k)
 
-    def __init__(self):
-        self.__list__ = []
+class MongoDbCardStorage():
 
-    def insert_one(self, item):
-        self.__list__.append(item)
+    def __init__(self, database, **kwargs):
+        self._collection = MongoClient(**kwargs)[database].cards
 
-    def insert_many(self, items):
-        for item in items:
-            self.insert_one(item)
-
-    def find(self):
-        return self.__list__
+    def sample(self, k):
+        return list(self._collection.aggregate([
+                {'$sample': {'size': k}},
+                {'$project': {'_id': 0}}
+            ]))
