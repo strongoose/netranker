@@ -9,4 +9,7 @@ class SimpleRandom():
         self.storage = storage
 
     def sample(self, size):
-        return self.storage.sample(size)
+        return [
+            card_details['name']
+            for card_details in self.storage.sample(size)
+        ]

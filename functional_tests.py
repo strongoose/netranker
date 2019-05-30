@@ -33,6 +33,8 @@ class TestVoting(unittest.TestCase):
 
         cards = response.json.get('cards', None)
         self.assertEqual(len(cards), 2)
+        for card in cards:
+            self.assertEqual(type(card), str)
 
         token = response.json.get('token', None)
         try:
