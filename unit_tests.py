@@ -50,5 +50,5 @@ class TestPairing(unittest.TestCase):
 
         try:
             jwt.decode(pairing.jwt(HMAC_KEY), HMAC_KEY, algorithms=['HS256'])
-        except jwt.DecodeError:
-            self.fail("Could not decode Pairing JWT")
+        except jwt.InvalidTokenError:
+            self.fail("Invalid JWT Token")
