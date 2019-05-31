@@ -11,6 +11,27 @@ app.config.from_object('netranker.settings')
 app.config.from_envvar('NETRANKER_CONFIG', silent=True)
 api = Api(app)
 
+def extract_bearer_token(request):
+        auth_header = request.headers.get('authorization', None)
+        if auth_header is None:
+            raise Forbidden
+
+        authorization, token = auth_header.split(' ')
+        if authorization.lower() != 'bearer':
+            raise Unauthorized
+
+        return token
+
+def decode_bearer_token(request):
+    token = extract_bearer_token(request)
+    try:
+        return jwt.decode(
+            token, app.config['HMAC_KEY'], algorithms=['HS256']
+        )
+    except jwt.InvalidTokenError:
+        raise Unauthorized
+
+
 class PairingApi(Resource):
 
     def get(self):
@@ -24,20 +45,7 @@ class PairingApi(Resource):
 
 class ResultApi(Resource):
     def post(self):
-        auth_header = request.headers.get('authorization', None)
-        if auth_header is None:
-            raise Forbidden
-
-        authorization, token = auth_header.split(' ')
-        if authorization.lower() != 'bearer':
-            raise Unauthorized
-
-        try:
-            claims = jwt.decode(
-                token, app.config['HMAC_KEY'], algorithms=['HS256']
-            )
-        except jwt.InvalidTokenError:
-            raise Unauthorized
+        claims = decode_bearer_token(request)
 
         winner = request.json.get('winner', None)
         if winner is None:
