@@ -36,10 +36,9 @@ class PairingApi(Resource):
 
     def get(self):
         pairing = Pairing(app.config['SAMPLER'])
-        pairing.jwt(app.config['HMAC_KEY'])
         response = {
             'cards': pairing.cards,
-            'token': pairing.jwt(app.config['HMAC_KEY'])
+            'token': pairing.issue_jwt(app.config['HMAC_KEY'])
         }
         return response, 200
 

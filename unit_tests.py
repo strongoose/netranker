@@ -53,7 +53,7 @@ class TestPairing(unittest.TestCase):
         self.assertEqual(pairing.sampling_method, 'simple random')
 
         try:
-            jwt.decode(pairing.jwt(HMAC_KEY), HMAC_KEY, algorithms=['HS256'])
+            jwt.decode(pairing.issue_jwt(HMAC_KEY), HMAC_KEY, algorithms=['HS256'])
         except jwt.InvalidTokenError:
             self.fail("Invalid JWT Token")
 
