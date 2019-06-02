@@ -1,12 +1,14 @@
 import unittest
+from datetime import datetime, timedelta
 
 import jwt
 
-from netranker.core import Pairing
-from netranker.storage import InMemoryCardStorage
+from netranker.core import Pairing, Result
+from netranker.storage import InMemoryCardStorage, InMemoryResultStorage
 from netranker.samplers import SimpleRandom
 
 CARD_STORAGE = InMemoryCardStorage()
+RESULT_STORAGE = InMemoryResultStorage()
 SAMPLER = SimpleRandom(storage=CARD_STORAGE)
 HMAC_KEY = 'test signing key'
 
@@ -46,9 +48,38 @@ class TestPairing(unittest.TestCase):
         pairing = Pairing(SAMPLER)
 
         self.assertEqual(type(pairing.cards), list)
+        for card in pairing.cards:
+            self.assertEqual(type(card), str)
         self.assertEqual(pairing.sampling_method, 'simple random')
 
         try:
             jwt.decode(pairing.jwt(HMAC_KEY), HMAC_KEY, algorithms=['HS256'])
         except jwt.InvalidTokenError:
             self.fail("Invalid JWT Token")
+
+class TestResult(unittest.TestCase):
+
+    def test_result_creation(self):
+
+        pairing = {
+            'cards': ['Hostile Takeover', 'Contract Killer'],
+            'iat': datetime.now() - timedelta(minutes=5),
+            'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+        },
+        winner = 'Hostile Takeover'
+        try:
+            result = Result(winner, pairing, RESULT_STORAGE)
+            result.register()
+        except:
+            self.fail('Could not create result.')
+
+        stored_results = list(result._storage._results)
+        self.assertEqual(len(stored_results), 1)
+
+        result = stored_results[0]
+
+        self.assertIn('winner', result.keys())
+        self.assertIn('pairing', result.keys())
+        print(result)
+        self.assertEqual(result['winner'], winner)
+        self.assertEqual(result['pairing'], pairing)

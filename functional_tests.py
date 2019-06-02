@@ -8,16 +8,20 @@ from pymongo import MongoClient
 from netranker.app import app
 import netranker.utils as utils
 from netranker.samplers import SimpleRandom
-from netranker.storage import MongoDbCardStorage
+from netranker.storage import MongoDbCardStorage, MongoDbResultStorage
 
-CARD_STORAGE = MongoDbCardStorage('netranker-test-%s' % uuid4())
+DB_NAME = 'netranker-test-%s' % uuid4()
 
 def setUpModule():
-    app.config['CARD_STORAGE'] = CARD_STORAGE
+    app.config['CARD_STORAGE'] = MongoDbCardStorage(DB_NAME)
+    app.config['RESULT_STORAGE'] = MongoDbResultStorage(DB_NAME)
     utils.load_cards_from_disk(app.config['CARD_STORAGE']._collection)
 
     app.config['HMAC_KEY'] = 'test hmac key'
     app.config['SAMPLER'] = SimpleRandom(app.config['CARD_STORAGE'])
+
+def tearDownModule():
+    MongoClient().drop_database(DB_NAME)
 
 class TestVoting(unittest.TestCase):
 
@@ -131,3 +135,15 @@ class TestProduceRanking(unittest.TestCase):
     def test_empty_ranking(self):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json, {})
+
+    def test_single_result_ranking(self):
+        response = self.client.get('/pairing')
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
+        winner = response.json.get('cards')[0]
+        response = self.client.post('/result', json={'winner': winner},
+                                    headers=headers)
+
+        result = self.client.get('/ranking')
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json, {'ranking': [winner]})

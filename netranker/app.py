@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 
 import jwt
 
-from netranker.core import Pairing
+from netranker.core import Pairing, Result
 
 app = Flask(__name__)
 app.config.from_object('netranker.settings')
@@ -45,13 +45,15 @@ class PairingApi(Resource):
 
 class ResultApi(Resource):
     def post(self):
-        claims = decode_bearer_token(request)
+        pairing_claim = decode_bearer_token(request)
 
         winner = request.json.get('winner', None)
         if winner is None:
             raise BadRequest
-        if winner not in claims['cards']:
+        if winner not in pairing_claim['cards']:
             raise Unauthorized
+
+        Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
 
         return None, 204
 

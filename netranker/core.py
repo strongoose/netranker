@@ -18,3 +18,17 @@ class Pairing():
             hmac_key,
             algorithm='HS256'
         ).decode('utf-8')
+
+class Result():
+
+    def __init__(self, winner, pairing, storage):
+        self.winner = winner
+        self.pairing = pairing
+        self._storage = storage
+
+    def register(self):
+        self._storage.insert({
+            'winner': self.winner,
+            'pairing': self.pairing,
+            'created_at': datetime.now()
+        })

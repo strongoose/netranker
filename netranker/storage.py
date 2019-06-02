@@ -27,3 +27,25 @@ class MongoDbCardStorage():
             {'$sample': {'size': k}},
             {'$project': {'_id': 0}}
         ]))
+
+class BaseResultStorage(ABC):
+
+    @abstractmethod
+    def register(self, result):
+        pass
+
+class InMemoryResultStorage():
+
+    def __init__(self):
+        self._results = []
+
+    def insert(self, result):
+        self._results.append(result)
+
+class MongoDbResultStorage():
+
+    def __init__(self, database, **kwargs):
+        self._collection = MongoClient(**kwargs)[database].cards
+
+    def insert(self, result):
+        self._collection.insert(result)
