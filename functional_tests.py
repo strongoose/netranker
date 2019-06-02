@@ -47,6 +47,7 @@ class TestVoting(unittest.TestCase):
             self.fail('Could not decode pairing jwt: %s' % exception)
 
         self.assertIn('exp', claims.keys())
+        self.assertIn('iat', claims.keys())
         self.assertIn('cards', claims.keys())
 
     def test_submit_pairing(self):
