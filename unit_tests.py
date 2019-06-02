@@ -80,6 +80,5 @@ class TestResult(unittest.TestCase):
 
         self.assertIn('winner', result.keys())
         self.assertIn('pairing', result.keys())
-        print(result)
         self.assertEqual(result['winner'], winner)
         self.assertEqual(result['pairing'], pairing)
