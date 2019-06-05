@@ -60,12 +60,11 @@ class TestPairing(unittest.TestCase):
 class TestResult(unittest.TestCase):
 
     def test_result_creation(self):
-
         pairing = {
             'cards': ['Hostile Takeover', 'Contract Killer'],
             'iat': datetime.now() - timedelta(minutes=5),
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
-        },
+        }
         winner = 'Hostile Takeover'
         try:
             result = Result(winner, pairing, RESULT_STORAGE)
@@ -82,3 +81,13 @@ class TestResult(unittest.TestCase):
         self.assertIn('pairing', result.keys())
         self.assertEqual(result['winner'], winner)
         self.assertEqual(result['pairing'], pairing)
+
+    def test_result_creation_with_invalid_winner(self):
+        pairing = {
+            'cards': ['Hostile Takeover', 'Contract Killer'],
+            'iat': datetime.now() - timedelta(minutes=5),
+            'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+        },
+        winner = 'Account Siphon'
+        with self.assertRaises(Exception):
+            Result(winner, pairing, RESULT_STORAGE)

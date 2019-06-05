@@ -24,6 +24,8 @@ class Pairing():
 class Result():
 
     def __init__(self, winner, pairing, storage):
+        if winner not in pairing['cards']:
+            raise Exception
         self.winner = winner
         self.pairing = pairing
         self._storage = storage
