@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 
 import jwt
 
-from netranker.core import Pairing, Result
+from netranker.core import Pairing, Result, generate_ranking
 
 app = Flask(__name__)
 app.config.from_object('netranker.settings')
@@ -59,7 +59,7 @@ class ResultApi(Resource):
 class RankingApi(Resource):
 
     def get(self):
-        return {}, 200
+        return {'ranking': generate_ranking(app.config['RESULT_STORAGE'])}, 200
 
 api.add_resource(PairingApi, '/pairing')
 api.add_resource(ResultApi, '/result')

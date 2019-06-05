@@ -57,10 +57,10 @@ class InMemoryResultStorage(BaseResultStorage):
 class MongoDbResultStorage(BaseResultStorage):
 
     def __init__(self, database, **kwargs):
-        self._collection = MongoClient(**kwargs)[database].cards
+        self._collection = MongoClient(**kwargs)[database].results
 
-    def insert_one(self, *args, **kwargs):
-        return self._collection.insert_one(*args, **kwargs)
+    def insert_one(self, result):
+        return self._collection.insert_one(result)
 
-    def find(self, *args, **kwargs):
-        return self._collection.find(*args, **kwargs)
+    def find(self):
+        return list(self._collection.find({}, {'_id': 0}))

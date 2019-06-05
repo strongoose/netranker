@@ -136,7 +136,7 @@ class TestProduceRanking(unittest.TestCase):
     def test_empty_ranking(self):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.json, {})
+        self.assertEqual(result.json, {'ranking': []})
 
     def test_single_result_ranking(self):
         response = self.client.get('/pairing')

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from collections import Counter
 
 import jwt
 
@@ -40,4 +41,5 @@ class Result():
         })
 
 def generate_ranking(storage):
-    return [result['winner'] for result in storage.find()]
+    all_winners = [result['winner'] for result in storage.find()]
+    return [item[0] for item in Counter(all_winners).most_common()]
