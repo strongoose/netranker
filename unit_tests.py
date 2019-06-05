@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from netranker.core import Pairing, Result
+from netranker.core import Pairing, Result, generate_ranking
 from netranker.storage import InMemoryCardStorage, InMemoryResultStorage
 from netranker.samplers import SimpleRandom
 
@@ -108,3 +108,27 @@ class TestResult(unittest.TestCase):
         winner = 'Account Siphon'
         with self.assertRaises(Exception):
             Result(winner, pairing, self.result_storage)
+
+class TestRankings(unittest.TestCase):
+
+    def setUp(self):
+        self.result_storage = InMemoryResultStorage()
+
+    def tearDown(self):
+        self.result_storage = InMemoryResultStorage()
+
+    def test_empty_ranking(self):
+        ranking = generate_ranking(self.result_storage)
+        self.assertEqual(ranking, [])
+
+    def test_single_item_ranking(self):
+        pairing = {
+            'cards': ['Hostile Takeover', 'Contract Killer'],
+            'iat': datetime.now() - timedelta(minutes=5),
+            'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+        }
+        winner = 'Hostile Takeover'
+        Result(winner, pairing, self.result_storage)
+        ranking = generate_ranking(self.result_storage)
+
+        self.assertEqual(ranking, ['Hostile Takeover'])

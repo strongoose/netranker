@@ -38,3 +38,6 @@ class Result():
             'pairing': self.pairing,
             'created_at': datetime.now()
         })
+
+def generate_ranking(storage):
+    return [result['winner'] for result in storage.find()]

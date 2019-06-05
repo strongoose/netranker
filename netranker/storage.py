@@ -31,10 +31,19 @@ class MongoDbCardStorage():
 class BaseResultStorage(ABC):
 
     @abstractmethod
-    def register(self, result):
+    def insert(self, result):
         pass
 
-class InMemoryResultStorage():
+    @abstractmethod
+    def find(self):
+        pass
+
+class InMemoryResultStorage(BaseResultStorage):
+    '''
+    An in memory storage backend for use in testing. This is not fully
+    compatible with mongoclient, for example the find method does not accept
+    queries.
+    '''
 
     def __init__(self):
         self._results = []
@@ -42,10 +51,16 @@ class InMemoryResultStorage():
     def insert(self, result):
         self._results.append(result)
 
-class MongoDbResultStorage():
+    def find(self):
+        return self._results
+
+class MongoDbResultStorage(BaseResultStorage):
 
     def __init__(self, database, **kwargs):
         self._collection = MongoClient(**kwargs)[database].cards
 
-    def insert(self, result):
-        self._collection.insert(result)
+    def insert(self, *args, **kwargs):
+        return self._collection.insert_one(*args, **kwargs)
+
+    def find(self, *args, **kwargs):
+        return self._collection.find(*args, **kwargs)
