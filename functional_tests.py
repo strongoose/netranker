@@ -133,6 +133,9 @@ class TestProduceRanking(unittest.TestCase):
         app.config['SIGNING_KEY'] = self.signing_key
         self.client = app.test_client()
 
+    def tearDown(self):
+        app.config['RESULT_STORAGE']._collection.delete_many({})
+
     def test_empty_ranking(self):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
@@ -148,3 +151,48 @@ class TestProduceRanking(unittest.TestCase):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.json, {'ranking': [winner]})
+
+    def test_multiple_result_ranking(self):
+        results = [
+            {
+                'winner': 'Astroscript Pilot Program',
+                'claims': {
+                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            },
+            {
+                'winner': 'Astroscript Pilot Program',
+                'claims': {
+                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            },
+            {
+                'winner': 'Philotic Entanglement',
+                'claims': {
+                    'cards': ['Philotic Entanglement', 'Toshiyuki Sakai'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            }
+        ]
+
+        for result in results:
+            headers = {
+                'authorization': 'bearer ' + jwt.encode(
+                    result['claims'], app.config['HMAC_KEY'], algorithm='HS256'
+                ).decode('utf-8')
+            }
+            self.client.post(
+                '/result', json={'winner': result['winner']}, headers=headers
+            )
+
+        result = self.client.get('/ranking')
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json, {'ranking': [
+            'Astroscript Pilot Program',
+            'Philotic Entanglement'
+        ]})
