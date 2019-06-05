@@ -132,3 +132,36 @@ class TestRankings(unittest.TestCase):
         ranking = generate_ranking(self.result_storage)
 
         self.assertEqual(ranking, ['Hostile Takeover'])
+
+    def test_several_item_ranking(self):
+        results = [
+            {
+                'winner': 'Astoscript Pilot Program',
+                'claims': {
+                    'cards': ['Astoscript Pilot Program', 'Philotic Entanglement'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            },
+            {
+                'winner': 'Astoscript Pilot Program',
+                'claims': {
+                    'cards': ['Astoscript Pilot Program', 'Philotic Entanglement'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            },
+            {
+                'winner': 'Philotic Entanglement',
+                'claims': {
+                    'cards': ['Philotic Entanglement', 'Toshiyuki Sakai'],
+                    'iat': datetime.now() - timedelta(minutes=5),
+                    'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+                }
+            }
+        ]
+        for result in results:
+            Result(result['winner'], result['claims'], self.result_storage)
+        ranking = generate_ranking(self.result_storage)
+
+        self.assertEqual(ranking, ['Astoscript Pilot Program', 'Philotic Entanglement'])
