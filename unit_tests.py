@@ -136,17 +136,17 @@ class TestRankings(unittest.TestCase):
     def test_several_item_ranking(self):
         results = [
             {
-                'winner': 'Astoscript Pilot Program',
+                'winner': 'Astroscript Pilot Program',
                 'claims': {
-                    'cards': ['Astoscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
             },
             {
-                'winner': 'Astoscript Pilot Program',
+                'winner': 'Astroscript Pilot Program',
                 'claims': {
-                    'cards': ['Astoscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -164,4 +164,4 @@ class TestRankings(unittest.TestCase):
             Result(result['winner'], result['claims'], self.result_storage)
         ranking = generate_ranking(self.result_storage)
 
-        self.assertEqual(ranking, ['Astoscript Pilot Program', 'Philotic Entanglement'])
+        self.assertEqual(ranking, ['Astroscript Pilot Program', 'Philotic Entanglement'])
