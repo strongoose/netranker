@@ -31,7 +31,7 @@ class MongoDbCardStorage():
 class BaseResultStorage(ABC):
 
     @abstractmethod
-    def insert(self, result):
+    def insert_one(self, result):
         pass
 
     @abstractmethod
@@ -48,7 +48,7 @@ class InMemoryResultStorage(BaseResultStorage):
     def __init__(self):
         self._results = []
 
-    def insert(self, result):
+    def insert_one(self, result):
         self._results.append(result)
 
     def find(self):
@@ -59,7 +59,7 @@ class MongoDbResultStorage(BaseResultStorage):
     def __init__(self, database, **kwargs):
         self._collection = MongoClient(**kwargs)[database].cards
 
-    def insert(self, *args, **kwargs):
+    def insert_one(self, *args, **kwargs):
         return self._collection.insert_one(*args, **kwargs)
 
     def find(self, *args, **kwargs):

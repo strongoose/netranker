@@ -33,7 +33,7 @@ class Result():
         self._register()
 
     def _register(self):
-        self._storage.insert({
+        self._storage.insert_one({
             'winner': self.winner,
             'pairing': self.pairing,
             'created_at': datetime.now()
