@@ -30,7 +30,9 @@ class Result():
         self.pairing = pairing
         self._storage = storage
 
-    def register(self):
+        self._register()
+
+    def _register(self):
         self._storage.insert({
             'winner': self.winner,
             'pairing': self.pairing,

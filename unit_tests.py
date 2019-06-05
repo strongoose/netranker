@@ -68,7 +68,6 @@ class TestResult(unittest.TestCase):
         winner = 'Hostile Takeover'
         try:
             result = Result(winner, pairing, RESULT_STORAGE)
-            result.register()
         except:
             self.fail('Could not create result.')
 
