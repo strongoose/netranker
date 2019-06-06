@@ -13,12 +13,11 @@ from netranker.storage import MongoDbStorage
 DB_NAME = 'netranker-test-%s' % uuid4()
 
 def setUpModule():
-    app.config['CARD_STORAGE'] = MongoDbStorage(DB_NAME)
-    app.config['RESULT_STORAGE'] = MongoDbStorage(DB_NAME)
+    app.config['STORAGE'] = MongoDbStorage(DB_NAME)
     utils.load_cards_from_disk(MongoClient()[DB_NAME])
 
     app.config['HMAC_KEY'] = 'test hmac key'
-    app.config['SAMPLER'] = SimpleRandom(app.config['CARD_STORAGE'])
+    app.config['SAMPLER'] = SimpleRandom(app.config['STORAGE'])
 
 def tearDownModule():
     MongoClient().drop_database(DB_NAME)
@@ -134,7 +133,7 @@ class TestProduceRanking(unittest.TestCase):
         self.client = app.test_client()
 
     def tearDown(self):
-        app.config['RESULT_STORAGE']._results.delete_many({})
+        app.config['STORAGE']._results.delete_many({})
 
     def test_empty_ranking(self):
         result = self.client.get('/ranking')

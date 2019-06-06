@@ -52,14 +52,14 @@ class ResultApi(Resource):
         if winner not in pairing_claim['cards']:
             raise Unauthorized
 
-        Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
+        Result(winner, pairing_claim, storage=app.config['STORAGE'])
 
         return None, 204
 
 class RankingApi(Resource):
 
     def get(self):
-        return {'ranking': generate_ranking(app.config['RESULT_STORAGE'])}, 200
+        return {'ranking': generate_ranking(app.config['STORAGE'])}, 200
 
 api.add_resource(PairingApi, '/pairing')
 api.add_resource(ResultApi, '/result')
