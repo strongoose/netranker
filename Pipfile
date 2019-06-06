@@ -13,6 +13,9 @@ pymongo = "*"
 ipython = "*"
 requests = "*"
 pylint = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [requires]
 python_version = "3.7"
