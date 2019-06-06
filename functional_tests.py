@@ -15,7 +15,7 @@ DB_NAME = 'netranker-test-%s' % uuid4()
 def setUpModule():
     app.config['CARD_STORAGE'] = MongoDbCardStorage(DB_NAME)
     app.config['RESULT_STORAGE'] = MongoDbResultStorage(DB_NAME)
-    utils.load_cards_from_disk(app.config['CARD_STORAGE']._collection)
+    utils.load_cards_from_disk(MongoClient()[DB_NAME])
 
     app.config['HMAC_KEY'] = 'test hmac key'
     app.config['SAMPLER'] = SimpleRandom(app.config['CARD_STORAGE'])
