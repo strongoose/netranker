@@ -5,11 +5,15 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 import jwt
 
 from netranker.core import Pairing, Result, generate_ranking
+from netranker.storage import MongoDbStorage, InMemoryStorage
 
-app = Flask(__name__)
-app.config.from_object('netranker.settings')
-app.config.from_envvar('NETRANKER_CONFIG', silent=True)
-api = Api(app)
+def configure(app):
+    app.config['STORAGE'] = app.config['STORAGE'](
+        app.config['DATABASE'], host=app.config['DB_HOST'],
+        port=app.config['DB_PORT'])
+
+    app.config['SAMPLER'] = app.config['SAMPLER'](
+        app.config['STORAGE'])
 
 def extract_bearer_token(request):
         auth_header = request.headers.get('authorization', None)
@@ -60,6 +64,12 @@ class RankingApi(Resource):
 
     def get(self):
         return {'ranking': generate_ranking(app.config['STORAGE'])}, 200
+
+app = Flask(__name__)
+app.config.from_object('netranker.settings')
+app.config.from_envvar('NETRANKER_CONFIG', silent=True)
+configure(app)
+api = Api(app)
 
 api.add_resource(PairingApi, '/pairing')
 api.add_resource(ResultApi, '/result')

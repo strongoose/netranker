@@ -11,21 +11,27 @@ from netranker.samplers import SimpleRandom
 from netranker.storage import MongoDbStorage
 
 DB_NAME = 'netranker-test-%s' % uuid4()
+app.config['DATABASE'] = DB_NAME
 
 def setUpModule():
-    app.config['STORAGE'] = MongoDbStorage(DB_NAME)
     utils.load_cards_from_disk(MongoClient()[DB_NAME])
-
-    app.config['HMAC_KEY'] = 'test hmac key'
-    app.config['SAMPLER'] = SimpleRandom(app.config['STORAGE'])
 
 def tearDownModule():
     MongoClient().drop_database(DB_NAME)
+
+class TestAppConfig(unittest.TestCase):
+
+    def test_storage_backend_initialisation(self):
+        self.assertIsInstance(app.config['STORAGE'], MongoDbStorage)
+        self.assertIsInstance(app.config['SAMPLER'], SimpleRandom)
 
 class TestVoting(unittest.TestCase):
 
     def setUp(self):
         self.client = app.test_client()
+
+    def tearDown(self):
+        app.config['STORAGE']._results.delete_many({})
 
     def test_get_new_pairing(self):
         response = self.client.get('/pairing')

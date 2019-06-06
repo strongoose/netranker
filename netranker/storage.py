@@ -19,7 +19,11 @@ class BaseStorage(ABC):
 
 class InMemoryStorage():
 
-    def __init__(self):
+    def __init__(self, *_, **__):
+        '''
+        This accepts args and kwargs so that database configuration can be
+        harmlessly passed in even if we're not using a database.
+        '''
         self._cards = []
         self._results = []
 
