@@ -8,6 +8,7 @@ flask = "*"
 flask-restful = "*"
 PyJWT = "*"
 pymongo = "*"
+netranker = {editable = true,path = "."}
 
 [dev-packages]
 ipython = "*"

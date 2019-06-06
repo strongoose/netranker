@@ -25,4 +25,9 @@ setuptools.setup(
         'PyJWT',
         'pymongo',
     ],
+    entry_points={
+        'console_scripts': [
+            'nrutils = netranker.utils:main'
+        ]
+    }
 )

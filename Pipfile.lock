@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "27ac101f4e1bb154653131706eed7bc7df0d1824703336cf214e33e3b6ac14b7"
+            "sha256": "d7473d282e0fb1bd5a31e7c76324432e0a35af15b98d0faa6af97f461f382bcd"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -92,6 +92,10 @@
                 "sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7"
             ],
             "version": "==1.1.1"
+        },
+        "netranker": {
+            "editable": true,
+            "path": "."
         },
         "pyjwt": {
             "hashes": [
