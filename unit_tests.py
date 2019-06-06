@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 import jwt
 
 from netranker.core import Pairing, Result, generate_ranking
-from netranker.storage import InMemoryCardStorage, InMemoryResultStorage
+from netranker.storage import InMemoryStorage
 from netranker.samplers import SimpleRandom
 
 class TestSamplers(unittest.TestCase):
 
     def setUp(self):
-        self.card_storage = InMemoryCardStorage()
+        self.card_storage = InMemoryStorage()
         self.card_storage._cards = [
             {'name': 'Paige Piper', 'packs': ['val']},
             {'name': 'Fall Guy', 'packs': ['dt', 'core2']},
@@ -41,7 +41,7 @@ class TestSamplers(unittest.TestCase):
 class TestPairing(unittest.TestCase):
 
     def setUp(self):
-        card_storage = InMemoryCardStorage()
+        card_storage = InMemoryStorage()
         card_storage._cards = [
             {'name': 'Paige Piper', 'packs': ['val']},
             {'name': 'Fall Guy', 'packs': ['dt', 'core2']},
@@ -72,10 +72,10 @@ class TestPairing(unittest.TestCase):
 class TestResult(unittest.TestCase):
 
     def setUp(self):
-        self.result_storage = InMemoryResultStorage()
+        self.result_storage = InMemoryStorage()
 
     def tearDown(self):
-        self.result_storage = InMemoryResultStorage()
+        self.result_storage = InMemoryStorage()
 
     def test_result_creation(self):
         pairing = {
@@ -112,10 +112,10 @@ class TestResult(unittest.TestCase):
 class TestRankings(unittest.TestCase):
 
     def setUp(self):
-        self.result_storage = InMemoryResultStorage()
+        self.result_storage = InMemoryStorage()
 
     def tearDown(self):
-        self.result_storage = InMemoryResultStorage()
+        self.result_storage = InMemoryStorage()
 
     def test_empty_ranking(self):
         ranking = generate_ranking(self.result_storage)
