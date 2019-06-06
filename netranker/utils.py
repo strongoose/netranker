@@ -24,14 +24,15 @@ def load_cards_from_disk(database):
 
 def load_cards(database, card_data):
     card_data = sorted(card_data, key=get_title)
-    database.cards.insert_many([
-        {
-            'name': name,
-            'side': [printing['side_code'] for printing in printings][0],
-            'packs': [printing['pack_code'] for printing in printings]
-        }
-        for name, printings in groupby(card_data, get_title)
-    ])
+    for name, printings in groupby(card_data, get_title):
+        printings = list(printings)
+        database.cards.insert_one(
+            {
+                'name': name,
+                'side': [printing['side_code'] for printing in printings][0],
+                'packs': [printing['pack_code'] for printing in printings]
+            }
+        )
 
 def main():
     parser = argparse.ArgumentParser(description='Netranker utility scripts')
