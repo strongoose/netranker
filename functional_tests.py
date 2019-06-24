@@ -14,7 +14,7 @@ DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME
 
 def setUpModule():
-    utils.load_cards_from_disk(MongoClient()[DB_NAME])
+    utils.load_cards_from_disk(app.config['STORAGE'])
 
 def tearDownModule():
     MongoClient().drop_database(DB_NAME)

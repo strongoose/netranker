@@ -6,23 +6,13 @@ import jwt
 from netranker.core import Pairing, Result, generate_ranking
 from netranker.storage import InMemoryStorage
 from netranker.samplers import SimpleRandom
+from netranker.utils import load_cards_from_disk
 
 class TestSamplers(unittest.TestCase):
 
     def setUp(self):
         self.card_storage = InMemoryStorage()
-        self.card_storage._cards = [
-            {'name': 'Paige Piper', 'packs': ['val']},
-            {'name': 'Fall Guy', 'packs': ['dt', 'core2']},
-            {'name': 'Seidr Laboratories: Destiny Defined', 'packs': ['td', 'sc19']},
-            {'name': 'Leprechaun', 'packs': ['up']},
-            {'name': 'Data Loop', 'packs': ['fm']},
-            {'name': 'Threat Level Alpha', 'packs': ['cd']},
-            {'name': 'Cyberdex Trial', 'packs': ['om']},
-            {'name': "An Offer You Can't Refuse", 'packs': ['oh']},
-            {'name': 'Musaazi', 'packs': ['ka']},
-            {'name': 'Brain-Taping Warehouse', 'packs': ['val']}
-        ]
+        load_cards_from_disk(self.card_storage)
 
     def test_simple_random_sampler(self):
         sampler = SimpleRandom(self.card_storage)

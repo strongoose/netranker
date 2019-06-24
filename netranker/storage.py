@@ -33,6 +33,9 @@ class InMemoryStorage():
     def insert_one(self, result):
         self._results.append(result)
 
+    def insert_card(self, card):
+        self._cards.append(card)
+
     def find(self):
         return self._results
 
@@ -51,6 +54,9 @@ class MongoDbStorage():
 
     def insert_one(self, result):
         return self._results.insert_one(result)
+
+    def insert_card(self, card):
+        return self._cards.insert_one(card)
 
     def find(self):
         return list(self._results.find({}, {'_id': 0}))
