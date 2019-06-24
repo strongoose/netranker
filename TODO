@@ -7,3 +7,5 @@
  - token expired
  - invalid auth type
  - etc.
+
+* Refactor storage method names
