@@ -155,22 +155,39 @@ class TestProduceRanking(unittest.TestCase):
 
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.json, {'ranking': [winner]})
+
+        winner_faction = app.config['STORAGE'].lookup(
+            {'name': winner}
+        )['faction']
+
+        ranking = {
+            'ranking': [
+                {
+                    'card': {
+                        'name': winner,
+                        'faction': winner_faction
+                    },
+                    'score': 1
+                }
+            ]
+        }
+        self.assertEqual(result.json, ranking)
 
     def test_multiple_result_ranking(self):
         results = [
             {
-                'winner': 'Astroscript Pilot Program',
+                'winner': 'AstroScript Pilot Program',
+
                 'claims': {
-                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
             },
             {
-                'winner': 'Astroscript Pilot Program',
+                'winner': 'AstroScript Pilot Program',
                 'claims': {
-                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -197,7 +214,23 @@ class TestProduceRanking(unittest.TestCase):
 
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.json, {'ranking': [
-            'Astroscript Pilot Program',
-            'Philotic Entanglement'
-        ]})
+
+        expected_ranking = {
+            'ranking': [
+                {
+                    'score': 2,
+                    'card': {
+                        'name': 'AstroScript Pilot Program',
+                        'faction': 'nbn',
+                    }
+                },
+                {
+                    'score': 1,
+                    'card': {
+                        'name': 'Philotic Entanglement',
+                        'faction': 'jinteki',
+                    }
+                },
+            ]
+        }
+        self.assertEqual(result.json, expected_ranking)

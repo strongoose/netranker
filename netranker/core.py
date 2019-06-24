@@ -42,4 +42,14 @@ class Result():
 
 def generate_ranking(storage):
     all_winners = [result['winner'] for result in storage.find()]
-    return [item[0] for item in Counter(all_winners).most_common()]
+    winners_by_wins = [
+        {
+            'card': {
+                'name': card,
+                'faction': storage.lookup({'name': card})['faction']
+            },
+            'score': score
+        }
+        for card, score in Counter(all_winners).most_common()
+    ]
+    return winners_by_wins

@@ -11,11 +11,11 @@ from netranker.utils import load_cards_from_disk
 class TestSamplers(unittest.TestCase):
 
     def setUp(self):
-        self.card_storage = InMemoryStorage()
-        load_cards_from_disk(self.card_storage)
+        self.storage = InMemoryStorage()
+        load_cards_from_disk(self.storage)
 
     def test_simple_random_sampler(self):
-        sampler = SimpleRandom(self.card_storage)
+        sampler = SimpleRandom(self.storage)
 
         samples = [
             sampler.sample(i)
@@ -31,20 +31,9 @@ class TestSamplers(unittest.TestCase):
 class TestPairing(unittest.TestCase):
 
     def setUp(self):
-        card_storage = InMemoryStorage()
-        card_storage._cards = [
-            {'name': 'Paige Piper', 'packs': ['val']},
-            {'name': 'Fall Guy', 'packs': ['dt', 'core2']},
-            {'name': 'Seidr Laboratories: Destiny Defined', 'packs': ['td', 'sc19']},
-            {'name': 'Leprechaun', 'packs': ['up']},
-            {'name': 'Data Loop', 'packs': ['fm']},
-            {'name': 'Threat Level Alpha', 'packs': ['cd']},
-            {'name': 'Cyberdex Trial', 'packs': ['om']},
-            {'name': "An Offer You Can't Refuse", 'packs': ['oh']},
-            {'name': 'Musaazi', 'packs': ['ka']},
-            {'name': 'Brain-Taping Warehouse', 'packs': ['val']}
-        ]
-        self.sampler = SimpleRandom(card_storage)
+        self.storage = InMemoryStorage()
+        load_cards_from_disk(self.storage)
+        self.sampler = SimpleRandom(self.storage)
 
     def test_pairing_creation(self):
         pairing = Pairing(self.sampler)
@@ -62,10 +51,8 @@ class TestPairing(unittest.TestCase):
 class TestResult(unittest.TestCase):
 
     def setUp(self):
-        self.result_storage = InMemoryStorage()
-
-    def tearDown(self):
-        self.result_storage = InMemoryStorage()
+        self.storage = InMemoryStorage()
+        load_cards_from_disk(self.storage)
 
     def test_result_creation(self):
         pairing = {
@@ -75,7 +62,7 @@ class TestResult(unittest.TestCase):
         }
         winner = 'Hostile Takeover'
         try:
-            result = Result(winner, pairing, self.result_storage)
+            result = Result(winner, pairing, self.storage)
         except:
             self.fail('Could not create result.')
 
@@ -97,18 +84,16 @@ class TestResult(unittest.TestCase):
         }
         winner = 'Account Siphon'
         with self.assertRaises(Exception):
-            Result(winner, pairing, self.result_storage)
+            Result(winner, pairing, self.storage)
 
 class TestRankings(unittest.TestCase):
 
     def setUp(self):
-        self.result_storage = InMemoryStorage()
-
-    def tearDown(self):
-        self.result_storage = InMemoryStorage()
+        self.storage = InMemoryStorage()
+        load_cards_from_disk(self.storage)
 
     def test_empty_ranking(self):
-        ranking = generate_ranking(self.result_storage)
+        ranking = generate_ranking(self.storage)
         self.assertEqual(ranking, [])
 
     def test_single_item_ranking(self):
@@ -118,25 +103,34 @@ class TestRankings(unittest.TestCase):
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
         }
         winner = 'Hostile Takeover'
-        Result(winner, pairing, self.result_storage)
-        ranking = generate_ranking(self.result_storage)
+        Result(winner, pairing, self.storage)
+        ranking = generate_ranking(self.storage)
 
-        self.assertEqual(ranking, ['Hostile Takeover'])
+        expected_ranking = [
+            {
+                'card': {
+                    'name': 'Hostile Takeover',
+                    'faction': 'weyland-consortium',
+                },
+                'score': 1
+            }
+        ]
+        self.assertEqual(ranking, expected_ranking)
 
     def test_several_item_ranking(self):
         results = [
             {
-                'winner': 'Astroscript Pilot Program',
+                'winner': 'AstroScript Pilot Program',
                 'claims': {
-                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
             },
             {
-                'winner': 'Astroscript Pilot Program',
+                'winner': 'AstroScript Pilot Program',
                 'claims': {
-                    'cards': ['Astroscript Pilot Program', 'Philotic Entanglement'],
+                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -151,7 +145,24 @@ class TestRankings(unittest.TestCase):
             }
         ]
         for result in results:
-            Result(result['winner'], result['claims'], self.result_storage)
-        ranking = generate_ranking(self.result_storage)
+            Result(result['winner'], result['claims'], self.storage)
+        ranking = generate_ranking(self.storage)
 
-        self.assertEqual(ranking, ['Astroscript Pilot Program', 'Philotic Entanglement'])
+        expected_ranking = [
+            {
+                'card': {
+                    'name': 'AstroScript Pilot Program',
+                    'faction': 'nbn',
+                },
+                'score': 2
+            },
+            {
+                'card': {
+                    'name': 'Philotic Entanglement',
+                    'faction': 'jinteki',
+                },
+                'score': 1
+            }
+        ]
+
+        self.assertEqual(ranking, expected_ranking)

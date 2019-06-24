@@ -39,6 +39,23 @@ class InMemoryStorage():
     def find(self):
         return self._results
 
+    def lookup(self, filter):
+
+        def matches(card, filter):
+            for key, value in filter.items():
+                if card[key] != value:
+                    return False
+            return True
+
+        result = [
+            card for card in self._cards
+            if matches(card, filter)
+        ]
+
+        if result == []:
+            return None
+
+        return result[0]
 
 class MongoDbStorage():
 
@@ -60,3 +77,6 @@ class MongoDbStorage():
 
     def find(self):
         return list(self._results.find({}, {'_id': 0}))
+
+    def lookup(self, filter):
+        return self._cards.find_one(filter)
