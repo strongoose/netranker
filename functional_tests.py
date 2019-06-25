@@ -7,7 +7,6 @@ from pymongo import MongoClient
 
 from netranker.app import app
 import netranker.utils as utils
-from netranker.samplers import SimpleRandom
 from netranker.storage import MongoDbStorage
 
 DB_NAME = 'netranker-test-%s' % uuid4()
@@ -23,7 +22,6 @@ class TestAppConfig(unittest.TestCase):
 
     def test_storage_backend_initialisation(self):
         self.assertIsInstance(app.config['STORAGE'], MongoDbStorage)
-        self.assertIsInstance(app.config['SAMPLER'], SimpleRandom)
 
 class TestVoting(unittest.TestCase):
 

@@ -1,13 +1,31 @@
 from datetime import datetime, timedelta
 from collections import Counter
+from abc import ABC, abstractmethod
 
 import jwt
 
-class Pairing():
+class BasePairing(ABC):
 
-    def __init__(self, sampler):
-        self.sampling_method = str(sampler)
-        self.cards = sampler.sample(2)
+    @abstractmethod
+    def issue_jwt(self):
+        pass
+
+    @abstractmethod
+    def sample(self):
+        pass
+
+class RandomPairing(BasePairing):
+
+    def __init__(self, storage):
+        self.storage = storage
+        self.method = 'simple random'
+        self.sample()
+
+    def serialize(self, hmac_key):
+        return {
+            'cards': self.cards,
+            'token': self.issue_jwt(hmac_key)
+        }
 
     def issue_jwt(self, hmac_key):
         claims = {
@@ -18,6 +36,12 @@ class Pairing():
         return jwt.encode(
             claims, hmac_key, algorithm='HS256'
         ).decode('utf-8')
+
+    def sample(self):
+        self.cards = [
+            card_details['name']
+            for card_details in self.storage.sample(2)
+        ]
 
 class Result():
 

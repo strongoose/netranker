@@ -3,50 +3,40 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from netranker.core import Pairing, Result, generate_ranking
+from netranker.core import RandomPairing, Result, generate_ranking
 from netranker.storage import InMemoryStorage
-from netranker.samplers import SimpleRandom
 from netranker.utils import load_cards_from_disk
 
-class TestSamplers(unittest.TestCase):
+class TestRandomPairing(unittest.TestCase):
 
     def setUp(self):
-        self.storage = InMemoryStorage()
-        load_cards_from_disk(self.storage)
-
-    def test_simple_random_sampler(self):
-        sampler = SimpleRandom(self.storage)
-
-        samples = [
-            sampler.sample(i)
-            for i in range(0, 10)
-        ]
-
-        for i, sample in enumerate(samples):
-            self.assertEqual(type(sample), list)
-            self.assertEqual(len(sample), i)
-            for card in sample:
-                self.assertTrue(type(card), str)
-
-class TestPairing(unittest.TestCase):
-
-    def setUp(self):
-        self.storage = InMemoryStorage()
-        load_cards_from_disk(self.storage)
-        self.sampler = SimpleRandom(self.storage)
+        storage = InMemoryStorage()
+        load_cards_from_disk(storage)
+        self.pairing = RandomPairing(storage)
 
     def test_pairing_creation(self):
-        pairing = Pairing(self.sampler)
-
-        self.assertEqual(type(pairing.cards), list)
-        for card in pairing.cards:
+        self.assertEqual(type(self.pairing.cards), list)
+        for card in self.pairing.cards:
             self.assertEqual(type(card), str)
-        self.assertEqual(pairing.sampling_method, 'simple random')
+        self.assertEqual(self.pairing.method, 'simple random')
 
+    def test_issue_jwt(self):
         try:
-            jwt.decode(pairing.issue_jwt('test key'), 'test key', algorithms=['HS256'])
+            jwt.decode(self.pairing.issue_jwt('test key'), 'test key', algorithms=['HS256'])
         except jwt.InvalidTokenError:
             self.fail("Invalid JWT Token")
+
+    def test_serialize(self):
+        json = self.pairing.serialize('test key')
+        self.assertIn('cards', json)
+        self.assertIn('token', json)
+        self.assertEqual(type(json['cards']), list)
+        self.assertEqual(type(json['token']), str)
+
+    def test_sample(self):
+        old_cards = self.pairing.cards
+        self.pairing.sample()
+        self.assertNotEqual(old_cards, self.pairing.cards)
 
 class TestResult(unittest.TestCase):
 

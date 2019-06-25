@@ -4,7 +4,7 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 
 import jwt
 
-from netranker.core import Pairing, Result, generate_ranking
+from netranker.core import RandomPairing, Result, generate_ranking
 from netranker.storage import MongoDbStorage, InMemoryStorage
 
 def configure(app):
@@ -12,19 +12,16 @@ def configure(app):
         app.config['DATABASE'], host=app.config['DB_HOST'],
         port=app.config['DB_PORT'])
 
-    app.config['SAMPLER'] = app.config['SAMPLER'](
-        app.config['STORAGE'])
-
 def extract_bearer_token(request):
-        auth_header = request.headers.get('authorization', None)
-        if auth_header is None:
-            raise Forbidden
+    auth_header = request.headers.get('authorization', None)
+    if auth_header is None:
+        raise Forbidden
 
-        authorization, token = auth_header.split(' ')
-        if authorization.lower() != 'bearer':
-            raise Unauthorized
+    authorization, token = auth_header.split(' ')
+    if authorization.lower() != 'bearer':
+        raise Unauthorized
 
-        return token
+    return token
 
 def decode_bearer_token(request):
     token = extract_bearer_token(request)
@@ -35,15 +32,11 @@ def decode_bearer_token(request):
     except jwt.InvalidTokenError:
         raise Unauthorized
 
-
 class PairingApi(Resource):
 
     def get(self):
-        pairing = Pairing(app.config['SAMPLER'])
-        response = {
-            'cards': pairing.cards,
-            'token': pairing.issue_jwt(app.config['HMAC_KEY'])
-        }
+        pairing = RandomPairing(app.config['STORAGE'])
+        response = pairing.serialize(app.config['HMAC_KEY'])
         return response, 200
 
 class ResultApi(Resource):
