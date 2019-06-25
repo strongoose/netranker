@@ -10,17 +10,14 @@ class Pairing():
         self.cards = sampler.sample(2)
 
     def issue_jwt(self, hmac_key):
-        return jwt.encode(
-            self.claims, hmac_key, algorithm='HS256'
-        ).decode('utf-8')
-
-    @property
-    def claims(self):
-        return {
+        claims = {
             'cards': self.cards,
             'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(days=30)
         }
+        return jwt.encode(
+            claims, hmac_key, algorithm='HS256'
+        ).decode('utf-8')
 
 class Result():
 
