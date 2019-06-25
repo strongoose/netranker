@@ -8,7 +8,11 @@ from netranker.core import RandomPairing, Result, generate_ranking
 from netranker.storage import MongoDbStorage, InMemoryStorage
 
 def configure(app):
-    app.config['STORAGE'] = app.config['STORAGE'](
+    app.config['CARD_STORAGE'] = app.config['CARD_STORAGE'](
+        app.config['DATABASE'], host=app.config['DB_HOST'],
+        port=app.config['DB_PORT'])
+
+    app.config['RESULT_STORAGE'] = app.config['RESULT_STORAGE'](
         app.config['DATABASE'], host=app.config['DB_HOST'],
         port=app.config['DB_PORT'])
 
@@ -35,7 +39,7 @@ def decode_bearer_token(request):
 class PairingApi(Resource):
 
     def get(self):
-        pairing = RandomPairing(app.config['STORAGE'])
+        pairing = RandomPairing(app.config['CARD_STORAGE'])
         response = pairing.serialize(app.config['HMAC_KEY'])
         return response, 200
 
@@ -49,14 +53,14 @@ class ResultApi(Resource):
         if winner not in pairing_claim['cards']:
             raise Unauthorized
 
-        Result(winner, pairing_claim, storage=app.config['STORAGE'])
+        Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
 
         return None, 204
 
 class RankingApi(Resource):
 
     def get(self):
-        return {'ranking': generate_ranking(app.config['STORAGE'])}, 200
+        return {'ranking': generate_ranking(app.config['CARD_STORAGE'], app.config['RESULT_STORAGE'])}, 200
 
 app = Flask(__name__)
 app.config.from_object('netranker.settings')

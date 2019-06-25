@@ -4,15 +4,16 @@ from datetime import datetime, timedelta
 import jwt
 
 from netranker.core import RandomPairing, Result, generate_ranking
-from netranker.storage import InMemoryStorage
+from netranker.card_storage import InMemoryCardStorage
+from netranker.result_storage import InMemoryResultStorage
 from netranker.utils import load_cards_from_disk
 
 class TestRandomPairing(unittest.TestCase):
 
     def setUp(self):
-        storage = InMemoryStorage()
-        load_cards_from_disk(storage)
-        self.pairing = RandomPairing(storage)
+        card_storage = InMemoryCardStorage()
+        load_cards_from_disk(card_storage)
+        self.pairing = RandomPairing(card_storage)
 
     def test_pairing_creation(self):
         self.assertEqual(type(self.pairing.cards), list)
@@ -41,8 +42,7 @@ class TestRandomPairing(unittest.TestCase):
 class TestResult(unittest.TestCase):
 
     def setUp(self):
-        self.storage = InMemoryStorage()
-        load_cards_from_disk(self.storage)
+        self.result_storage = InMemoryResultStorage()
 
     def test_result_creation(self):
         pairing = {
@@ -52,7 +52,7 @@ class TestResult(unittest.TestCase):
         }
         winner = 'Hostile Takeover'
         try:
-            result = Result(winner, pairing, self.storage)
+            result = Result(winner, pairing, self.result_storage)
         except:
             self.fail('Could not create result.')
 
@@ -74,16 +74,17 @@ class TestResult(unittest.TestCase):
         }
         winner = 'Account Siphon'
         with self.assertRaises(Exception):
-            Result(winner, pairing, self.storage)
+            Result(winner, pairing, self.result_storage)
 
 class TestRankings(unittest.TestCase):
 
     def setUp(self):
-        self.storage = InMemoryStorage()
-        load_cards_from_disk(self.storage)
+        self.card_storage = InMemoryCardStorage()
+        load_cards_from_disk(self.card_storage)
+        self.result_storage = InMemoryResultStorage()
 
     def test_empty_ranking(self):
-        ranking = generate_ranking(self.storage)
+        ranking = generate_ranking(self.card_storage, self.result_storage)
         self.assertEqual(ranking, [])
 
     def test_single_item_ranking(self):
@@ -93,8 +94,8 @@ class TestRankings(unittest.TestCase):
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
         }
         winner = 'Hostile Takeover'
-        Result(winner, pairing, self.storage)
-        ranking = generate_ranking(self.storage)
+        Result(winner, pairing, self.result_storage)
+        ranking = generate_ranking(self.card_storage, self.result_storage)
 
         expected_ranking = [
             {
@@ -135,8 +136,8 @@ class TestRankings(unittest.TestCase):
             }
         ]
         for result in results:
-            Result(result['winner'], result['claims'], self.storage)
-        ranking = generate_ranking(self.storage)
+            Result(result['winner'], result['claims'], self.result_storage)
+        ranking = generate_ranking(self.card_storage, self.result_storage)
 
         expected_ranking = [
             {

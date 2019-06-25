@@ -55,19 +55,19 @@ class Result():
         self._register()
 
     def _register(self):
-        self._storage.insert_one({
+        self._storage.register({
             'winner': self.winner,
             'pairing': self.pairing,
             'created_at': datetime.now()
         })
 
-def generate_ranking(storage):
-    all_winners = [result['winner'] for result in storage.find()]
+def generate_ranking(card_storage, result_storage):
+    all_winners = [result['winner'] for result in result_storage.list()]
     winners_by_wins = [
         {
             'card': {
                 'name': card,
-                'faction': storage.lookup({'name': card})['faction']
+                'faction': card_storage.lookup({'name': card})['faction']
             },
             'score': score
         }

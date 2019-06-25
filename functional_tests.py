@@ -13,15 +13,10 @@ DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME
 
 def setUpModule():
-    utils.load_cards_from_disk(app.config['STORAGE'])
+    utils.load_cards_from_disk(app.config['CARD_STORAGE'])
 
 def tearDownModule():
     MongoClient().drop_database(DB_NAME)
-
-class TestAppConfig(unittest.TestCase):
-
-    def test_storage_backend_initialisation(self):
-        self.assertIsInstance(app.config['STORAGE'], MongoDbStorage)
 
 class TestVoting(unittest.TestCase):
 
@@ -29,7 +24,7 @@ class TestVoting(unittest.TestCase):
         self.client = app.test_client()
 
     def tearDown(self):
-        app.config['STORAGE']._results.delete_many({})
+        app.config['RESULT_STORAGE']._results.delete_many({})
 
     def test_get_new_pairing(self):
         response = self.client.get('/pairing')
@@ -137,7 +132,7 @@ class TestProduceRanking(unittest.TestCase):
         self.client = app.test_client()
 
     def tearDown(self):
-        app.config['STORAGE']._results.delete_many({})
+        app.config['RESULT_STORAGE']._results.delete_many({})
 
     def test_empty_ranking(self):
         result = self.client.get('/ranking')
@@ -154,7 +149,7 @@ class TestProduceRanking(unittest.TestCase):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
 
-        winner_faction = app.config['STORAGE'].lookup(
+        winner_faction = app.config['CARD_STORAGE'].lookup(
             {'name': winner}
         )['faction']
 
