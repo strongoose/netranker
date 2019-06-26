@@ -136,6 +136,18 @@ class TestVoting(unittest.TestCase):
         self.assertEqual(response_a.status_code, 204)
         self.assertEqual(response_b.status_code, 401)
 
+    def test_submit_winner_twice(self):
+        response = self.client.get('/pairing')
+
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
+        result_a = {'winner': response.json.get('cards')[0]}
+        result_b = {'winner': response.json.get('cards')[0]}
+
+        response_a = self.client.post('/result', json=result_a, headers=headers)
+        response_b = self.client.post('/result', json=result_b, headers=headers)
+        self.assertEqual(response_a.status_code, 204)
+        self.assertEqual(response_b.status_code, 401)
+
 class TestProduceRanking(unittest.TestCase):
 
     def setUp(self):
