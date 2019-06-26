@@ -46,15 +46,18 @@ class RandomPairing(BasePairing):
 class Result():
 
     def __init__(self, winner, pairing, storage):
-        if winner not in pairing['cards']:
-            raise Exception
         self.winner = winner
         self.pairing = pairing
         self._storage = storage
 
-        self._register()
+        self.validate()
+        self.register()
 
-    def _register(self):
+    def validate(self):
+        if self.winner not in self.pairing['cards']:
+            raise Exception
+
+    def register(self):
         self._storage.register({
             'winner': self.winner,
             'pairing': self.pairing,
