@@ -7,7 +7,6 @@ from pymongo import MongoClient
 
 from netranker.app import app
 import netranker.utils as utils
-from netranker.storage import MongoDbStorage
 
 DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME

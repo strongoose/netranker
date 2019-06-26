@@ -5,7 +5,6 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 import jwt
 
 from netranker.core import RandomPairing, Result, generate_ranking
-from netranker.storage import MongoDbStorage, InMemoryStorage
 
 def configure(app):
     app.config['CARD_STORAGE'] = app.config['CARD_STORAGE'](
