@@ -124,6 +124,17 @@ class TestVoting(unittest.TestCase):
         response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
+    def test_submit_multiple_winners(self):
+        response = self.client.get('/pairing')
+
+        headers = {'authorization': 'bearer ' + response.json.get('token')}
+        result_a = {'winner': response.json.get('cards')[0]}
+        result_b = {'winner': response.json.get('cards')[1]}
+
+        response_a = self.client.post('/result', json=result_a, headers=headers)
+        response_b = self.client.post('/result', json=result_b, headers=headers)
+        self.assertEqual(response.status_code, 401)
+
 class TestProduceRanking(unittest.TestCase):
 
     def setUp(self):
