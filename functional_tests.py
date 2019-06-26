@@ -45,6 +45,7 @@ class TestVoting(unittest.TestCase):
 
         self.assertIn('exp', claims.keys())
         self.assertIn('iat', claims.keys())
+        self.assertIn('uuid', claims.keys())
         self.assertIn('cards', claims.keys())
 
     def test_submit_pairing(self):
@@ -132,7 +133,8 @@ class TestVoting(unittest.TestCase):
 
         response_a = self.client.post('/result', json=result_a, headers=headers)
         response_b = self.client.post('/result', json=result_b, headers=headers)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response_a.status_code, 204)
+        self.assertEqual(response_b.status_code, 401)
 
 class TestProduceRanking(unittest.TestCase):
 
@@ -183,6 +185,7 @@ class TestProduceRanking(unittest.TestCase):
 
                 'claims': {
                     'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'uuid': '1',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -191,6 +194,7 @@ class TestProduceRanking(unittest.TestCase):
                 'winner': 'AstroScript Pilot Program',
                 'claims': {
                     'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'uuid': '2',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -199,6 +203,7 @@ class TestProduceRanking(unittest.TestCase):
                 'winner': 'Philotic Entanglement',
                 'claims': {
                     'cards': ['Philotic Entanglement', 'Toshiyuki Sakai'],
+                    'uuid': '3',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }

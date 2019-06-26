@@ -4,7 +4,9 @@ from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
 
 import jwt
 
-from netranker.core import RandomPairing, Result, generate_ranking
+from netranker.core import (
+    RandomPairing, Result, generate_ranking, InvalidWinner, DuplicateResult
+)
 
 def configure(app):
     app.config['CARD_STORAGE'] = app.config['CARD_STORAGE'](
@@ -49,10 +51,11 @@ class ResultApi(Resource):
         winner = request.json.get('winner', None)
         if winner is None:
             raise BadRequest
-        if winner not in pairing_claim['cards']:
-            raise Unauthorized
 
-        Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
+        try:
+            Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
+        except (InvalidWinner, DuplicateResult) as e:
+            raise Unauthorized
 
         return None, 204
 

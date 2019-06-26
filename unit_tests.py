@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from netranker.core import RandomPairing, Result, generate_ranking
+from netranker.core import (
+    RandomPairing, Result, generate_ranking, DuplicateResult, InvalidWinner
+)
 from netranker.card_storage import InMemoryCardStorage
 from netranker.result_storage import InMemoryResultStorage
 from netranker.utils import load_cards_from_disk
@@ -47,6 +49,7 @@ class TestResult(unittest.TestCase):
     def test_result_creation(self):
         pairing = {
             'cards': ['Hostile Takeover', 'Contract Killer'],
+            'uuid': '1234',
             'iat': datetime.now() - timedelta(minutes=5),
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
         }
@@ -69,12 +72,26 @@ class TestResult(unittest.TestCase):
     def test_result_creation_with_invalid_winner(self):
         pairing = {
             'cards': ['Hostile Takeover', 'Contract Killer'],
+            'uuid': '1234',
             'iat': datetime.now() - timedelta(minutes=5),
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
         }
         winner = 'Account Siphon'
-        with self.assertRaises(Exception):
+        with self.assertRaises(InvalidWinner):
             Result(winner, pairing, self.result_storage)
+
+    def test_duplicate_result_creation(self):
+        pairing = {
+            'cards': ['Account Siphon', 'Contract Killer'],
+            'uuid': '1234',
+            'iat': datetime.now() - timedelta(minutes=5),
+            'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
+        }
+        winner = 'Account Siphon'
+        Result(winner, pairing, self.result_storage)
+
+        with self.assertRaises(DuplicateResult):
+            Result('Contract Killer', pairing, self.result_storage)
 
 class TestRankings(unittest.TestCase):
 
@@ -90,6 +107,7 @@ class TestRankings(unittest.TestCase):
     def test_single_item_ranking(self):
         pairing = {
             'cards': ['Hostile Takeover', 'Contract Killer'],
+            'uuid': '1',
             'iat': datetime.now() - timedelta(minutes=5),
             'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
         }
@@ -114,6 +132,7 @@ class TestRankings(unittest.TestCase):
                 'winner': 'AstroScript Pilot Program',
                 'claims': {
                     'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'uuid': '1',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -122,6 +141,7 @@ class TestRankings(unittest.TestCase):
                 'winner': 'AstroScript Pilot Program',
                 'claims': {
                     'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'uuid': '2',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -130,6 +150,7 @@ class TestRankings(unittest.TestCase):
                 'winner': 'Philotic Entanglement',
                 'claims': {
                     'cards': ['Philotic Entanglement', 'Toshiyuki Sakai'],
+                    'uuid': '3',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
@@ -157,3 +178,19 @@ class TestRankings(unittest.TestCase):
         ]
 
         self.assertEqual(ranking, expected_ranking)
+
+class TestInMemoryResultStorage(unittest.TestCase):
+
+    def test_lookup(self):
+        result_storage = InMemoryResultStorage()
+
+        result_storage.register({
+            'winner': 'Architect',
+            'pairing': {
+                'cards': ['Architect', 'Underway Grid'],
+                'uuid': '1234567890',
+            }
+        })
+
+        self.assertIsNotNone(result_storage.lookup({'pairing.uuid': '1234567890'}))
+        self.assertIsNone(result_storage.lookup({'pairing.uuid': 'notthere'}))

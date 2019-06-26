@@ -1,8 +1,15 @@
 from datetime import datetime, timedelta
 from collections import Counter
 from abc import ABC, abstractmethod
+from uuid import uuid4
 
 import jwt
+
+class InvalidWinner(Exception):
+    pass
+
+class DuplicateResult(Exception):
+    pass
 
 class BasePairing(ABC):
 
@@ -30,6 +37,7 @@ class RandomPairing(BasePairing):
     def issue_jwt(self, hmac_key):
         claims = {
             'cards': self.cards,
+            'uuid': str(uuid4()),
             'iat': datetime.utcnow(),
             'exp': datetime.utcnow() + timedelta(days=30)
         }
@@ -55,7 +63,10 @@ class Result():
 
     def validate(self):
         if self.winner not in self.pairing['cards']:
-            raise Exception
+            raise InvalidWinner
+
+        if self._storage.lookup({'pairing.uuid': self.pairing['uuid']}) is not None:
+            raise DuplicateResult
 
     def register(self):
         self._storage.register({
