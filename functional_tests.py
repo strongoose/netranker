@@ -6,13 +6,13 @@ import jwt
 from pymongo import MongoClient
 
 from netranker.app import app
-import netranker.utils as utils
+from test_utils import load_test_data, random_card_names, faction_of
 
 DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME
 
 def setUpModule():
-    utils.load_cards_from_disk(app.config['CARD_STORAGE'])
+    load_test_data(app.config['CARD_STORAGE'])
 
 def tearDownModule():
     MongoClient().drop_database(DB_NAME)
@@ -92,13 +92,13 @@ class TestVoting(unittest.TestCase):
         response = self.client.get('/pairing')
 
         headers = {'authorization': 'bearer ' + response.json.get('token')}
-        result = {'winner': 'The Shadow: Pulling the Strings'}
+        result = {'winner': 'An Obviously Made Up Card Name'}
 
         response = self.client.post('/result', json=result, headers=headers)
         self.assertEqual(response.status_code, 401)
 
     def test_submit_pairing_with_expired_token(self):
-        cards = ['Oversight AI', 'Melange Mining Corp.']
+        cards = random_card_names(2)
         expired_jwt = jwt.encode(
             {
                 'exp': datetime.utcnow() - timedelta(days=30),
@@ -191,30 +191,32 @@ class TestProduceRanking(unittest.TestCase):
         self.assertEqual(result.json, ranking)
 
     def test_multiple_result_ranking(self):
+        first, second, third = random_card_names(3)
+
         results = [
             {
-                'winner': 'AstroScript Pilot Program',
+                'winner': first,
 
                 'claims': {
-                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'cards': [first, second],
                     'uuid': '1',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
             },
             {
-                'winner': 'AstroScript Pilot Program',
+                'winner': first,
                 'claims': {
-                    'cards': ['AstroScript Pilot Program', 'Philotic Entanglement'],
+                    'cards': [first, third],
                     'uuid': '2',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
                 }
             },
             {
-                'winner': 'Philotic Entanglement',
+                'winner': second,
                 'claims': {
-                    'cards': ['Philotic Entanglement', 'Toshiyuki Sakai'],
+                    'cards': [second, third],
                     'uuid': '3',
                     'iat': datetime.now() - timedelta(minutes=5),
                     'exp': datetime.now() - timedelta(minutes=5) + timedelta(days=30)
@@ -240,15 +242,15 @@ class TestProduceRanking(unittest.TestCase):
                 {
                     'score': 2,
                     'card': {
-                        'name': 'AstroScript Pilot Program',
-                        'faction': 'nbn',
+                        'name': first,
+                        'faction': faction_of(first),
                     }
                 },
                 {
                     'score': 1,
                     'card': {
-                        'name': 'Philotic Entanglement',
-                        'faction': 'jinteki',
+                        'name': second,
+                        'faction': faction_of(second),
                     }
                 },
             ]
