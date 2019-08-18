@@ -21,8 +21,8 @@ steps:
 
   - name: pubilsh
     when:
-      branch:
-        - master
+      event:
+        - push
     image: python:3
     environment:
       TOKEN:
@@ -34,8 +34,13 @@ steps:
         python3 -m twine upload --username __token__ --password "$TOKEN"
         --repository-url https://pypi.org/project/netranker/
         dist/*
+
+trigger:
+  branch:
+    - master
+
 ---
 kind: signature
-hmac: c4495c3b65f986416726b86a3bd0a4c063eed2b6d6d8ad146ff0fbdeb4aa8c1d
+hmac: 790a15b1e2cff84fa4037a3455abb55922c4407bacb1524bedd580001fbdc7e1
 
 ...
