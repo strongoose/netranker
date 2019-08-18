@@ -15,7 +15,7 @@ def setUpModule():
     load_test_data(app.config['CARD_STORAGE'])
 
 def tearDownModule():
-    MongoClient().drop_database(DB_NAME)
+    MongoClient(app.config['DB_HOST']).drop_database(DB_NAME)
 
 class TestVoting(unittest.TestCase):
 
