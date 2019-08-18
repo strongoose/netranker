@@ -1,0 +1,46 @@
+---
+kind: pipeline
+name: default
+
+services:
+  - name: mongo
+    image: mongo:4
+    ports:
+      - 27017
+
+steps:
+  - name: tests
+    image: kennethreitz/pipenv
+    environment:
+      NETRANKER_CONFIG: ../config/drone-ci.py
+    commands:
+      - pipenv install -d
+      - pipenv run python -m unittest unit_tests.py
+      - sleep 5 # Give mongodb time to start
+      - pipenv run python -m unittest functional_tests.py
+
+  - name: pubilsh
+    when:
+      event:
+        - push
+    image: python:3
+    environment:
+      TOKEN:
+        from_secret: pypi_token
+    commands:
+      - python3 -m pip install --upgrade setuptools wheel twine
+      - python3 setup.py sdist bdist_wheel
+      - >
+        python3 -m twine upload --username __token__ --password "$TOKEN"
+        --repository-url https://pypi.org/project/netranker/
+        dist/*
+
+trigger:
+  branch:
+    - master
+
+---
+kind: signature
+hmac: 790a15b1e2cff84fa4037a3455abb55922c4407bacb1524bedd580001fbdc7e1
+
+...

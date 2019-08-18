@@ -1,3 +1,5 @@
+from os import environ
+
 from flask import Flask, request
 from flask_restful import Api, Resource
 from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
@@ -65,7 +67,7 @@ class RankingApi(Resource):
         return {'ranking': generate_ranking(app.config['CARD_STORAGE'], app.config['RESULT_STORAGE'])}, 200
 
 app = Flask(__name__)
-app.config.from_object('netranker.settings')
+app.config.from_object('config.default')
 app.config.from_envvar('NETRANKER_CONFIG', silent=True)
 configure(app)
 api = Api(app)
