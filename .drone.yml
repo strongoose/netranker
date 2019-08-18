@@ -25,15 +25,13 @@ steps:
         - push
     image: python:3
     environment:
-      TOKEN:
+      TWINE_USERNAME: __token__
+      TWINE_PASSWORD:
         from_secret: pypi_token
     commands:
       - python3 -m pip install --upgrade setuptools wheel twine
       - python3 setup.py sdist bdist_wheel
-      - >
-        python3 -m twine upload --username __token__ --password "$TOKEN"
-        --repository-url https://pypi.org/project/netranker/
-        dist/*
+      - python3 -m twine upload dist/*
 
 trigger:
   branch:
@@ -41,6 +39,6 @@ trigger:
 
 ---
 kind: signature
-hmac: 790a15b1e2cff84fa4037a3455abb55922c4407bacb1524bedd580001fbdc7e1
+hmac: 2252c9323b35598569393223f5e0a16279909dfae714a201e9adb5eca0741588
 
 ...
