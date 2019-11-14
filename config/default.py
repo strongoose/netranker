@@ -10,3 +10,4 @@ RESULT_STORAGE = MongoDbResultStorage
 DATABASE = 'netranker'
 DB_HOST = 'localhost'
 DB_PORT = 27017
+EXTRA_RESPONSE_HEADERS = {}

@@ -44,7 +44,7 @@ class PairingApi(Resource):
     def get(self):
         pairing = RandomPairing(app.config['CARD_STORAGE'])
         response = pairing.serialize(app.config['HMAC_KEY'])
-        return response, 200
+        return response, 200, app.config['EXTRA_RESPONSE_HEADERS']
 
 class ResultApi(Resource):
     def post(self):
@@ -59,12 +59,13 @@ class ResultApi(Resource):
         except (InvalidWinner, DuplicateResult) as e:
             raise Unauthorized
 
-        return None, 204
+        return None, 204, app.config['EXTRA_RESPONSE_HEADERS']
 
 class RankingApi(Resource):
 
     def get(self):
-        return {'ranking': generate_ranking(app.config['CARD_STORAGE'], app.config['RESULT_STORAGE'])}, 200
+        ranking = generate_ranking(app.config['CARD_STORAGE'], app.config['RESULT_STORAGE'])
+        return {'ranking': ranking}, 200, app.config['EXTRA_RESPONSE_HEADERS']
 
 app = Flask(__name__)
 app.config.from_object('config.default')
