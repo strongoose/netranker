@@ -47,6 +47,7 @@ class PairingApi(Resource):
         return response, 200, app.config['EXTRA_RESPONSE_HEADERS']
 
 class ResultApi(Resource):
+
     def post(self):
         pairing_claim = decode_bearer_token(request)
 

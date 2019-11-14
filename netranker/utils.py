@@ -1,10 +1,21 @@
 import json
-from itertools import groupby
 import argparse
+from itertools import groupby
+import re
 
 import requests
+from unidecode import unidecode
 
 from netranker.card_storage import MongoDbCardStorage, InMemoryCardStorage
+
+def tidy(name):
+    '''
+    Normalise card names by ascii-ising using unidecode, stripping punctuation and replacing spaces with hyphens
+    '''
+    result = unidecode(name).lower()
+    result = re.sub(r'[^\w -]', '', result)
+    result = result.replace(' ', '-')
+    return result
 
 def fetch_cards_from_netrunnerdb():
     return requests.get(
@@ -29,6 +40,7 @@ def cards_from(card_data):
     card_data = sorted(card_data, key=get_title)
     for _, printings in groupby(card_data, get_title):
         first_printing = list(printings)[0]
+        first_printing['image_url'] = 'https://assets.glyx.co.uk/anr/cards/%s.png' % tidy(first_printing['title'])
         yield first_printing
 
 def load_cards(card_storage, card_data):
