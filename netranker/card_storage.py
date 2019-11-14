@@ -14,7 +14,7 @@ class BaseCardStorage(ABC):
         pass
 
     @abstractmethod
-    def lookup(self, filter):
+    def lookup(self, filter, projection=None):
         pass
 
 class InMemoryCardStorage(BaseCardStorage):
@@ -28,7 +28,7 @@ class InMemoryCardStorage(BaseCardStorage):
     def insert(self, card):
         self._cards.append(card)
 
-    def lookup(self, filter):
+    def lookup(self, filter, projection=None):
 
         def matches(card, filter):
             for key, value in filter.items():
@@ -59,5 +59,9 @@ class MongoDbCardStorage(BaseCardStorage):
     def insert(self, card):
         return self._cards.insert_one(card)
 
-    def lookup(self, filter):
-        return self._cards.find_one(filter)
+    def lookup(self, filter, projection=None):
+        if projection is None:
+            projection = {}
+        projection['_id'] = False
+        result = self._cards.find_one(filter, projection=projection)
+        return result
