@@ -27,14 +27,9 @@ def cards_from(card_data):
     '''
     get_title = lambda card: card['title']
     card_data = sorted(card_data, key=get_title)
-    for name, printings in groupby(card_data, get_title):
-        printings = list(printings)
-        yield {
-            'name': name,
-            'side': [printing['side_code'] for printing in printings][0],
-            'packs': [printing['pack_code'] for printing in printings],
-            'faction': [printing['faction_code'] for printing in printings][0]
-        }
+    for _, printings in groupby(card_data, get_title):
+        first_printing = list(printings)[0]
+        yield first_printing
 
 def load_cards(card_storage, card_data):
     for record in cards_from(card_data):

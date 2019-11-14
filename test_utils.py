@@ -9,11 +9,5 @@ def load_test_data(card_storage):
         # inserting
         card_storage.insert(card.copy())
 
-def random_card_names(size):
-    return [card['name'] for card in sample(CARDS, size)]
-
-def faction_of(card_name):
-    for card in CARDS:
-        if card['name'] == card_name:
-            return card['faction']
-    return None
+def random_cards(size):
+    return sample(CARDS, size)

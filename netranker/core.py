@@ -46,10 +46,7 @@ class RandomPairing(BasePairing):
         ).decode('utf-8')
 
     def sample(self):
-        self.cards = [
-            card_details['name']
-            for card_details in self.storage.sample(2)
-        ]
+        self.cards = list(self.storage.sample(2))
 
 class Result():
 
@@ -76,15 +73,12 @@ class Result():
         })
 
 def generate_ranking(card_storage, result_storage):
-    all_winners = [result['winner'] for result in result_storage.list()]
+    all_winners = [result['winner']['title'] for result in result_storage.list()]
     winners_by_wins = [
         {
-            'card': {
-                'name': card,
-                'faction': card_storage.lookup({'name': card})['faction']
-            },
+            'card': card_storage.lookup({'title': title}),
             'score': score
         }
-        for card, score in Counter(all_winners).most_common()
+        for title, score in Counter(all_winners).most_common()
     ]
     return winners_by_wins

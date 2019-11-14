@@ -6,7 +6,7 @@ import jwt
 from pymongo import MongoClient
 
 from netranker.app import app
-from test_utils import load_test_data, random_card_names, faction_of
+from test_utils import load_test_data, random_cards
 
 DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME
@@ -35,7 +35,7 @@ class TestVoting(unittest.TestCase):
         cards = response.json.get('cards', None)
         self.assertEqual(len(cards), 2)
         for card in cards:
-            self.assertEqual(type(card), str)
+            self.assertEqual(type(card), dict)
 
         token = response.json.get('token', None)
         try:
@@ -98,7 +98,7 @@ class TestVoting(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_submit_pairing_with_expired_token(self):
-        cards = random_card_names(2)
+        cards = random_cards(2)
         expired_jwt = jwt.encode(
             {
                 'exp': datetime.utcnow() - timedelta(days=30),
@@ -173,17 +173,10 @@ class TestProduceRanking(unittest.TestCase):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
 
-        winner_faction = app.config['CARD_STORAGE'].lookup(
-            {'name': winner}
-        )['faction']
-
         ranking = {
             'ranking': [
                 {
-                    'card': {
-                        'name': winner,
-                        'faction': winner_faction
-                    },
+                    'card': winner,
                     'score': 1
                 }
             ]
@@ -191,7 +184,7 @@ class TestProduceRanking(unittest.TestCase):
         self.assertEqual(result.json, ranking)
 
     def test_multiple_result_ranking(self):
-        first, second, third = random_card_names(3)
+        first, second, third = random_cards(3)
 
         results = [
             {
@@ -237,22 +230,23 @@ class TestProduceRanking(unittest.TestCase):
         result = self.client.get('/ranking')
         self.assertEqual(result.status_code, 200)
 
-        expected_ranking = {
-            'ranking': [
-                {
-                    'score': 2,
-                    'card': {
-                        'name': first,
-                        'faction': faction_of(first),
-                    }
-                },
-                {
-                    'score': 1,
-                    'card': {
-                        'name': second,
-                        'faction': faction_of(second),
-                    }
-                },
-            ]
-        }
-        self.assertEqual(result.json, expected_ranking)
+        # self.maxDiff = None
+
+        ranking = result.json['ranking']
+        expected_ranking = [
+            {
+                'score': 2,
+                'card': first
+            },
+            {
+                'score': 1,
+                'card': second
+            },
+        ]
+
+
+        self.assertEqual(len(ranking), len(expected_ranking))
+
+        for actual, expected in zip(ranking, expected_ranking):
+            self.assertEqual(actual['score'], expected['score'])
+            self.assertEqual(actual['card']['title'], expected['card']['title'])

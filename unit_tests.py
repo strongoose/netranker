@@ -1,8 +1,6 @@
 import unittest
 from datetime import datetime, timedelta
 
-from random import sample
-
 import jwt
 
 from netranker.core import (
@@ -10,7 +8,7 @@ from netranker.core import (
 )
 from netranker.card_storage import InMemoryCardStorage
 from netranker.result_storage import InMemoryResultStorage
-from test_utils import load_test_data, random_card_names, faction_of
+from test_utils import load_test_data, random_cards
 
 class TestRandomPairing(unittest.TestCase):
 
@@ -22,7 +20,7 @@ class TestRandomPairing(unittest.TestCase):
     def test_pairing_creation(self):
         self.assertEqual(type(self.pairing.cards), list)
         for card in self.pairing.cards:
-            self.assertEqual(type(card), str)
+            self.assertEqual(type(card), dict)
         self.assertEqual(self.pairing.method, 'simple random')
 
     def test_issue_jwt(self):
@@ -49,7 +47,7 @@ class TestResult(unittest.TestCase):
         self.result_storage = InMemoryResultStorage()
 
     def test_result_creation(self):
-        winner, loser = random_card_names(2)
+        winner, loser = random_cards(2)
         pairing = {
             'cards': [winner, loser],
             'uuid': '1234',
@@ -72,7 +70,7 @@ class TestResult(unittest.TestCase):
         self.assertEqual(result['pairing'], pairing)
 
     def test_result_creation_with_invalid_winner(self):
-        card_a, card_b, invalid_winner  = random_card_names(3)
+        card_a, card_b, invalid_winner  = random_cards(3)
         pairing = {
             'cards': [card_a, card_b],
             'uuid': '1234',
@@ -83,7 +81,7 @@ class TestResult(unittest.TestCase):
             Result(invalid_winner, pairing, self.result_storage)
 
     def test_duplicate_result_creation(self):
-        winner, loser = random_card_names(2)
+        winner, loser = random_cards(2)
         pairing = {
             'cards': [winner, loser],
             'uuid': '1234',
@@ -107,7 +105,7 @@ class TestRankings(unittest.TestCase):
         self.assertEqual(ranking, [])
 
     def test_single_item_ranking(self):
-        winner, loser = random_card_names(2)
+        winner, loser = random_cards(2)
         pairing = {
             'cards': [winner, loser],
             'uuid': '1',
@@ -119,17 +117,14 @@ class TestRankings(unittest.TestCase):
 
         expected_ranking = [
             {
-                'card': {
-                    'name': winner,
-                    'faction': faction_of(winner),
-                },
+                'card': winner,
                 'score': 1
             }
         ]
         self.assertEqual(ranking, expected_ranking)
 
     def test_several_item_ranking(self):
-        first, second, third = random_card_names(3)
+        first, second, third = random_cards(3)
         results = [
             {
                 'winner': first,
@@ -165,17 +160,11 @@ class TestRankings(unittest.TestCase):
 
         expected_ranking = [
             {
-                'card': {
-                    'name': first,
-                    'faction': faction_of(first),
-                },
+                'card': first,
                 'score': 2
             },
             {
-                'card': {
-                    'name': second,
-                    'faction': faction_of(second),
-                },
+                'card': second,
                 'score': 1
             }
         ]
@@ -185,7 +174,7 @@ class TestRankings(unittest.TestCase):
 class TestInMemoryResultStorage(unittest.TestCase):
 
     def test_lookup(self):
-        winner, loser = random_card_names(2)
+        winner, loser = random_cards(2)
         result_storage = InMemoryResultStorage()
 
         result_storage.register({
