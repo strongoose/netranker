@@ -46,7 +46,7 @@ def main():
         required=True, help='Sub-command help',
     )
     load_cards_parser = subparsers.add_parser(
-        'load_cards', help='Load cards into a database')
+        'load-cards', help='Load cards into a database')
     load_cards_parser.add_argument(
         '--local', action='store_true', help='Load cards from local file')
     load_cards_parser.add_argument(
@@ -59,9 +59,9 @@ def main():
         '--port', default=27017, help='Database port')
     args = parser.parse_args()
 
-    if args.card_storage_backend == 'MongoDbCardStorage':
+    if args.storage_backend == 'MongoDbCardStorage':
         card_storage = MongoDbCardStorage(args.database, host=args.host, port=args.port)
-    elif args.card_storage_backend == 'InMemoryCardStorage':
+    elif args.storage_backend == 'InMemoryCardStorage':
         card_storage = InMemoryCardStorage()
 
     if args.local:
