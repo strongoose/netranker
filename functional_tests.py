@@ -11,11 +11,14 @@ from test_utils import load_test_data, random_cards
 DB_NAME = 'netranker-test-%s' % uuid4()
 app.config['DATABASE'] = DB_NAME
 
+
 def setUpModule():
     load_test_data(app.config['CARD_STORAGE'])
 
+
 def tearDownModule():
     MongoClient(app.config['DB_HOST']).drop_database(DB_NAME)
+
 
 class TestVoting(unittest.TestCase):
 
@@ -39,7 +42,9 @@ class TestVoting(unittest.TestCase):
 
         token = response.json.get('token', None)
         try:
-            claims = jwt.decode(token, app.config['HMAC_KEY'], algorithms=['HS256'])
+            claims = jwt.decode(
+                token, app.config['HMAC_KEY'], algorithms=['HS256']
+            )
         except jwt.DecodeError as exception:
             self.fail('Could not decode pairing jwt: %s' % exception)
 
@@ -148,6 +153,7 @@ class TestVoting(unittest.TestCase):
         self.assertEqual(response_a.status_code, 204)
         self.assertEqual(response_b.status_code, 401)
 
+
 class TestProduceRanking(unittest.TestCase):
 
     def setUp(self):
@@ -243,7 +249,6 @@ class TestProduceRanking(unittest.TestCase):
                 'card': second
             },
         ]
-
 
         self.assertEqual(len(ranking), len(expected_ranking))
 

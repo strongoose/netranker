@@ -10,6 +10,7 @@ from netranker.card_storage import InMemoryCardStorage
 from netranker.result_storage import InMemoryResultStorage
 from test_utils import load_test_data, random_cards
 
+
 class TestRandomPairing(unittest.TestCase):
 
     def setUp(self):
@@ -41,6 +42,7 @@ class TestRandomPairing(unittest.TestCase):
         self.pairing.sample()
         self.assertNotEqual(old_cards, self.pairing.cards)
 
+
 class TestResult(unittest.TestCase):
 
     def setUp(self):
@@ -70,7 +72,7 @@ class TestResult(unittest.TestCase):
         self.assertEqual(result['pairing'], pairing)
 
     def test_result_creation_with_invalid_winner(self):
-        card_a, card_b, invalid_winner  = random_cards(3)
+        card_a, card_b, invalid_winner = random_cards(3)
         pairing = {
             'cards': [card_a, card_b],
             'uuid': '1234',
@@ -92,6 +94,7 @@ class TestResult(unittest.TestCase):
 
         with self.assertRaises(DuplicateResult):
             Result(loser, pairing, self.result_storage)
+
 
 class TestRankings(unittest.TestCase):
 
@@ -170,6 +173,7 @@ class TestRankings(unittest.TestCase):
         ]
 
         self.assertEqual(ranking, expected_ranking)
+
 
 class TestInMemoryResultStorage(unittest.TestCase):
 

@@ -13,10 +13,10 @@ netranker = {editable = true,path = "."}
 [dev-packages]
 ipython = "*"
 requests = "*"
-pylint = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"

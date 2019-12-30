@@ -3,6 +3,7 @@ from random import sample
 
 from pymongo import MongoClient
 
+
 class BaseCardStorage(ABC):
 
     @abstractmethod
@@ -16,6 +17,7 @@ class BaseCardStorage(ABC):
     @abstractmethod
     def lookup(self, filter, projection=None):
         pass
+
 
 class InMemoryCardStorage(BaseCardStorage):
 
@@ -44,6 +46,7 @@ class InMemoryCardStorage(BaseCardStorage):
         if result == []:
             return None
         return result[0]
+
 
 class MongoDbCardStorage(BaseCardStorage):
 

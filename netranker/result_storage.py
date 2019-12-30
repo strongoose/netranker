@@ -3,6 +3,7 @@ from functools import reduce
 
 from pymongo import MongoClient
 
+
 class BaseResultStorage(ABC):
 
     @abstractmethod
@@ -16,6 +17,7 @@ class BaseResultStorage(ABC):
     @abstractmethod
     def lookup(self, filter):
         pass
+
 
 class InMemoryResultStorage(BaseResultStorage):
 
@@ -45,6 +47,7 @@ class InMemoryResultStorage(BaseResultStorage):
         if result == []:
             return None
         return result[0]
+
 
 class MongoDbResultStorage():
 

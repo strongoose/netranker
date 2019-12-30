@@ -5,11 +5,14 @@ from uuid import uuid4
 
 import jwt
 
+
 class InvalidWinner(Exception):
     pass
 
+
 class DuplicateResult(Exception):
     pass
+
 
 class BasePairing(ABC):
 
@@ -20,6 +23,7 @@ class BasePairing(ABC):
     @abstractmethod
     def sample(self):
         pass
+
 
 class RandomPairing(BasePairing):
 
@@ -48,6 +52,7 @@ class RandomPairing(BasePairing):
     def sample(self):
         self.cards = list(self.storage.sample(2))
 
+
 class Result():
 
     def __init__(self, winner, pairing, storage):
@@ -71,6 +76,7 @@ class Result():
             'pairing': self.pairing,
             'created_at': datetime.now()
         })
+
 
 def generate_ranking(card_storage, result_storage):
     all_winners = [result['winner']['title'] for result in result_storage.list()]

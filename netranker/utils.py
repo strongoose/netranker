@@ -8,6 +8,7 @@ from unidecode import unidecode
 
 from netranker.card_storage import MongoDbCardStorage, InMemoryCardStorage
 
+
 def tidy(name):
     '''
     Normalise card names by ascii-ising using unidecode, stripping punctuation and replacing spaces with hyphens
@@ -17,35 +18,44 @@ def tidy(name):
     result = result.replace(' ', '-')
     return result
 
+
 def fetch_cards_from_netrunnerdb():
     return requests.get(
         'https://netrunnerdb.com/api/2.0/public/cards'
     ).json()['data']
 
+
 def load_card_data_from_nrdb(card_storage):
     card_data = fetch_cards_from_netrunnerdb()
     load_cards(card_storage, card_data)
+
 
 def load_card_data_from_disk(card_storage):
     with open('downloads/card_data.json', 'r') as card_file:
         card_data = json.load(card_file)
     load_cards(card_storage, card_data)
 
+
 def cards_from(card_data):
     '''
     From JSON card data, return an iterator over cards as they should be
     written to our storage backend.
     '''
-    get_title = lambda card: card['title']
+
+    def get_title(card):
+        return card['title']
+
     card_data = sorted(card_data, key=get_title)
     for _, printings in groupby(card_data, get_title):
         first_printing = list(printings)[0]
         first_printing['image_url'] = 'https://assets.glyx.co.uk/anr/cards/%s.png' % tidy(first_printing['title'])
         yield first_printing
 
+
 def load_cards(card_storage, card_data):
     for record in cards_from(card_data):
         card_storage.insert(record)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Netranker utility scripts')

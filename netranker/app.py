@@ -1,5 +1,3 @@
-from os import environ
-
 from flask import Flask, request
 from flask_restful import Api, Resource
 from werkzeug.exceptions import Unauthorized, Forbidden, BadRequest
@@ -10,6 +8,7 @@ from netranker.core import (
     RandomPairing, Result, generate_ranking, InvalidWinner, DuplicateResult
 )
 
+
 def configure(app):
     app.config['CARD_STORAGE'] = app.config['CARD_STORAGE'](
         app.config['DATABASE'], host=app.config['DB_HOST'],
@@ -18,6 +17,7 @@ def configure(app):
     app.config['RESULT_STORAGE'] = app.config['RESULT_STORAGE'](
         app.config['DATABASE'], host=app.config['DB_HOST'],
         port=app.config['DB_PORT'])
+
 
 def extract_bearer_token(request):
     auth_header = request.headers.get('authorization', None)
@@ -30,6 +30,7 @@ def extract_bearer_token(request):
 
     return token
 
+
 def decode_bearer_token(request):
     token = extract_bearer_token(request)
     try:
@@ -39,12 +40,14 @@ def decode_bearer_token(request):
     except jwt.InvalidTokenError:
         raise Unauthorized
 
+
 class PairingApi(Resource):
 
     def get(self):
         pairing = RandomPairing(app.config['CARD_STORAGE'])
         response = pairing.serialize(app.config['HMAC_KEY'])
         return response, 200, app.config['EXTRA_RESPONSE_HEADERS']
+
 
 class ResultApi(Resource):
 
@@ -57,16 +60,19 @@ class ResultApi(Resource):
 
         try:
             Result(winner, pairing_claim, storage=app.config['RESULT_STORAGE'])
-        except (InvalidWinner, DuplicateResult) as e:
+
+        except (InvalidWinner, DuplicateResult):
             raise Unauthorized
 
         return None, 204, app.config['EXTRA_RESPONSE_HEADERS']
+
 
 class RankingApi(Resource):
 
     def get(self):
         ranking = generate_ranking(app.config['CARD_STORAGE'], app.config['RESULT_STORAGE'])
         return {'ranking': ranking}, 200, app.config['EXTRA_RESPONSE_HEADERS']
+
 
 app = Flask(__name__)
 app.config.from_object('config.default')
